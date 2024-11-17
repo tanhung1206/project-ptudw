@@ -1,0 +1,44 @@
+<!-- Register Start -->
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-6 offset-lg-3">
+            <div class="bg-light p-5">
+                <h4 class="font-weight-semi-bold mb-4">Create Your Account</h4>
+                <form method="POST" action="/register">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" placeholder="Enter username" required
+                            name="username">
+                        {{#if usernameError}}
+                        <p style="color:red">{{usernameError}}</p>
+                        {{/if}}
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" required
+                            name="email">
+                        {{#if emailError}}
+                        <p style="color:red">{{emailError}}</p>
+                        {{/if}}
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password" required
+                            name="password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{#if success}}
+<script>
+    window.onload = function () {
+        alert("Register successful");
+    };
+
+</script>
+{{/if}}
+<!-- Register End -->

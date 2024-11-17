@@ -1,0 +1,70 @@
+<div class="col-lg-3 col-md-12">
+    <!-- Price Start -->
+    <div class="border-bottom mb-4 pb-4">
+        <h5 class="font-weight-semi-bold mb-4">Filter by price</h5>
+        <form>
+            <!-- All Price -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" id="price-all" name="price-filter" checked>
+                <label class="custom-control-label" for="price-all">All Price</label>
+                <span class="badge border font-weight-normal">1000</span>
+            </div>
+            <!-- Custom Price -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" id="price-custom" name="price-filter">
+                <label class="custom-control-label" for="price-custom">Custom Price</label>
+            </div>
+            <div id="custom-price-inputs" class="d-none">
+                <div class="d-flex align-items-center">
+                    <input type="number" class="form-control mr-2" id="price-min" placeholder="Min Price">
+                    <span>to</span>
+                    <input type="number" class="form-control ml-2" id="price-max" placeholder="Max Price">
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Price End -->
+
+
+    <!-- Color Start -->
+
+    <div class="border-bottom mb-4 pb-4">
+        <h5 class="font-weight-semi-bold mb-4">Filter by color</h5>
+        <form>
+            <!-- All Color -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" checked id="color-all" name="color-filter">
+                <label class="custom-control-label" for="color-all">All Color</label>
+                <span class="badge border font-weight-normal">1000</span>
+            </div>
+            <!-- Black -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" id="color-1" name="color-filter">
+                <label class="custom-control-label" for="color-1">Black</label>
+                <span class="badge border font-weight-normal">150</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Color End -->
+    <!-- Size Start -->
+
+    <div class="mb-5">
+        <h5 class="font-weight-semi-bold mb-4">Filter by size</h5>
+        <form>
+            <!-- All Size -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" checked id="size-all" name="size-filter">
+                <label class="custom-control-label" for="size-all">All Size</label>
+                <span class="badge border font-weight-normal">1000</span>
+            </div>
+            <!-- L -->
+            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                <input type="radio" class="custom-control-input" id="size-4" name="size-filter">
+                <label class="custom-control-label" for="size-4">L</label>
+                <span class="badge border font-weight-normal">145</span>
+            </div>
+        </form>
+    </div>
+
+</div>
