@@ -6,7 +6,7 @@
 ### Bước 2: Chạy lệnh SQL
 1. Chạy lệnh trong file `db.sql` để tạo bảng và dữ liệu trong database `shop`.
 ### Bước 3: Cấu hình kết nối PostgreSQL
-1. Mở file `src/db/db.js`.
+1. Mở file `db/db.js`.
 2. Cập nhật cấu hình kết nối PostgreSQL:  
   const pool = new Pool({  
       user:   
