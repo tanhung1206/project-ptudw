@@ -7,45 +7,43 @@ const manufacturesModel = require("../models/manufacturesModel");
 const limit = 1;
 // Route trang About
 router.get('/', async (req, res) => {
-    // const bla = new URLSearchParams(req.query).toString();
-    // console.log(bla);
     const curPage = +req.query.page || 1;
-    // console.log(page)
-    const offset = (curPage - 1) * limit
     const categoryId = +req.query.categoryId;
     const manufactureId = +req.query.manufactureId;
     const stars = +req.query.stars;
-    let condition = [];
-    let query = {};
+
+    const offset = (curPage - 1) * limit
+
+    const queryParams=[]
     if (categoryId) {
-        query = { ...query, categoryId };
-        condition.push(`categoryId=${categoryId}`);
+        queryParams.push(`categoryId=${categoryId}`);
     }
     if (manufactureId) {
-        query = { ...query, manufactureId };
-        condition.push(`manufactureId=${manufactureId}`);
+        queryParams.push(`manufactureId=${manufactureId}`);
     }
     if (stars) {
-        query = { ...query, stars };
-        condition.push(`stars=${stars}`);
+        queryParams.push(`stars=${stars}`);
     }
-    query = new URLSearchParams(query).toString()
-    // console.log(`query: ${query}`);
-    // console.log(`condition:${condition.join(" and ")}`);
-    condition = condition.join(" and ");
+
+    const query =queryParams.join("&");
+    const condition = queryParams.join(" and ");
+
+    console.log(condition)
+
     const [productsResult, categoriesResult, manufacturesResult, totalResult] = await Promise.all([
         productsModel.filterByCondition(condition, limit, offset),
         categoriesModel.findAll(),
         manufacturesModel.findAll(),
-        productsModel.countAll()]);
+        productsModel.countByCondition(condition)]);
+
     const products = productsResult.rows;
     const categories = categoriesResult.rows;
     const manufactures = manufacturesResult.rows;
     const totalPages = +totalResult.rows[0].total;
-    // const totalPages = 9;
     const numPages = Math.ceil(totalPages / limit);
     const prevPage = curPage - 1 >= 1 ? curPage - 1 : undefined;
     const nextPage = curPage + 1 <= totalPages ? curPage + 1 : undefined;
+
     res.render('products', {
         title: 'Our Shop',
         message: 'Shop',
@@ -63,7 +61,6 @@ router.get('/', async (req, res) => {
         nextPage,
         totalPages
     });
-    // }
 });
 
 router.get('/:id', async (req, res) => {

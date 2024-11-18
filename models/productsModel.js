@@ -10,12 +10,16 @@ module.exports = {
     findByCatId(id) {
         return db.query(`select * from ${tableName} where categoryid=${id}`);
     },
-    filterByCondition(condition,limit,offset){
-        if(condition) return db.query(`select * from ${tableName} where ${condition} limit ${limit} offset ${offset}`);
+    filterByCondition(condition, limit, offset) {
+        if (condition) return db.query(`select * from ${tableName} where ${condition} limit ${limit} offset ${offset}`);
         return db.query(`select * from ${tableName} limit ${limit} offset ${offset}`);
     },
-    countAll(){
+    countAll() {
         return db.query(`select count(*) as total from ${tableName}`);
+    },
+    countByCondition(codition) {
+        if (codition) return db.query(`select count(*) as total from ${tableName} where ${codition}`);
+        else return db.query(`select count(*) as total from ${tableName}`);
     }
 
 }

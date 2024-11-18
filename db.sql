@@ -1,6 +1,6 @@
--- 1. Tạo bảng Manufactures
-CREATE TABLE Manufactures (
-    manufactureId SERIAL PRIMARY KEY,
+-- 1. Tạo bảng Manufacturers
+CREATE TABLE manufacturers (
+    manufacturerId SERIAL PRIMARY KEY,
     name VARCHAR(255),
     imagePath VARCHAR(255)
 );
@@ -39,7 +39,7 @@ CREATE TABLE Products (
     stars INT,
     createdAt DATE,
     categoryId INT REFERENCES Categories(categoryId),
-    manufacturerId INT REFERENCES Manufactures(manufactureId),
+    manufacturerId INT REFERENCES Manufacturers(manufacturer),
     status VARCHAR(50)
 );
 
@@ -98,11 +98,11 @@ VALUES
     ('Accessories', '/img/categories/Accessories.jpg')
 
 
-INSERT INTO Manufactures (name, imagePath) 
+INSERT INTO Manufacturers (name, imagePath) 
 VALUES
-    ('Nike', '/images/manufactures/Nike.jpg'),
-    ('Adidas', '/images/manufactures/Adidas.jpg'),
-    ('Puma', '/images/manufactures/Puma.jpg');
+    ('Nike', '/images/manufacturers/Nike.jpg'),
+    ('Adidas', '/images/manufacturers/Adidas.jpg'),
+    ('Puma', '/images/manufacturers/Puma.jpg');
 
 INSERT INTO Products (name, imagePath, price, summary, description, stars, categoryId, manufacturerId)
 VALUES 
