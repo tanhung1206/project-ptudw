@@ -39,7 +39,7 @@ CREATE TABLE Products (
     stars INT,
     createdAt DATE,
     categoryId INT REFERENCES Categories(categoryId),
-    manufacturerId INT REFERENCES Manufacturers(manufacturer),
+    manufacturerId INT REFERENCES Manufacturers(manufacturerId),
     status VARCHAR(50)
 );
 
@@ -95,7 +95,7 @@ VALUES
     ('Shoes', '/img/categories/Shoes.jpg'),
     ('Clothing', '/img/categories/Clothing.jpg'),
     ('Ball', '/img/categories/Ball.jpg'),
-    ('Accessories', '/img/categories/Accessories.jpg')
+    ('Accessories', '/img/categories/Accessories.jpg');
 
 
 INSERT INTO Manufacturers (name, imagePath) 
@@ -121,7 +121,7 @@ VALUES
 ('Adilette Comfort Slides', '/img/products/product7.jpg', 35, 'Whether you''re heading to the locker room after an intense gym session or at home recovering on the couch, these slides keep your feet wrapped in lightweight comfort. Pair them with socks and shorts for your post-workout look or with your favorite swimwear for the ultimate beach vibe. The adidas 3-Stripes design completes your sport style.', '<div class="row"><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Regular fit</li><li class="list-group-item px-0">Slip-on construction</li><li class="list-group-item px-0">Synthetic upper</li><li class="list-group-item px-0">Textile lining</li><li class="list-group-item px-0">Lightweight cushioning</li></ul></div><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Contoured footbed</li><li class="list-group-item px-0">EVA outsole</li><li class="list-group-item px-0">Imported</li><li class="list-group-item px-0">Product color: Core Black / Core Black / Core Black</li><li class="list-group-item px-0">Product code: GZ5896</li></ul></div></div>
 ', 5, 1, 2),
 ('Samba OG Shoes', '/img/products/product8.jpg', 100, 'Born on the pitch, the Samba is a timeless icon of street style. This silhouette stays true to its legacy with a tasteful, low-profile, soft leather upper, suede overlays and gum sole, making it a staple in everyone''s closet - on and off the pitch.', '<div class="row"><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Regular fit</li><li class="list-group-item px-0">Lace closure</li><li class="list-group-item px-0">Full grain leather upper with gritty suede and gold foil details</li><li class="list-group-item px-0">Synthetic leather lining; Gum rubber cupsole</li></ul></div><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Gum rubber midsole</li><li class="list-group-item px-0">Imported</li><li class="list-group-item px-0">Product color: Core Black / Cloud White / Gum</li><li class="list-group-item px-0">Product code: B75807</li></ul></div></div>
-', 3, 1, 2)
+', 3, 1, 2);
 
 
 INSERT INTO Products (name, imagePath, price, summary, description, stars, categoryId, manufacturerId)
