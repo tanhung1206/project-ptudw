@@ -18,6 +18,24 @@ app.engine('hbs', engine({
                 accum += block.fn(i); // Render nội dung trong {{#for}}...{{/for}} với giá trị i
             }
             return accum;
+        },
+        gte: function (a, b) {
+            return a >= b;
+        },
+        lte: function (a, b) {
+            return a <= b;
+        },
+        gt: function (a, b) {
+            return a > b;
+        },
+        subtract: function (a, b) {
+            return a - b;
+        },
+        add: function (a, b) {
+            return a + b
+        },
+        inRange: function (value, a, b) {
+            return value >= a && value <= b
         }
     }
 }));

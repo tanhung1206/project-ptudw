@@ -9,5 +9,13 @@ module.exports = {
     },
     findByCatId(id) {
         return db.query(`select * from ${tableName} where categoryid=${id}`);
+    },
+    filterByCondition(condition,limit,offset){
+        if(condition) return db.query(`select * from ${tableName} where ${condition} limit ${limit} offset ${offset}`);
+        return db.query(`select * from ${tableName} limit ${limit} offset ${offset}`);
+    },
+    countAll(){
+        return db.query(`select count(*) as total from ${tableName}`);
     }
+
 }
