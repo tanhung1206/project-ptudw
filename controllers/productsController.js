@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
     res.render('detail', {
         title: 'Shop Detail',
         message: 'Shop Detail',
-        currentPage: 'detail',
+        currentPage: 'shop',
         product
     });
 });

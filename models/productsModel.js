@@ -5,7 +5,7 @@ module.exports = {
         return db.query(`select * from ${tableName}`);
     },
     findOne(id) {
-        return db.query(`select * from ${tableName} where id=${id}`);
+        return db.query(`select * from ${tableName} where productid=${id}`);
     },
     findByCatId(id) {
         return db.query(`select * from ${tableName} where categoryid=${id}`);
