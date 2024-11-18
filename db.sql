@@ -1,5 +1,5 @@
 -- 1. Tạo bảng Manufacturers
-CREATE TABLE manufacturers (
+CREATE TABLE Manufacturers (
     manufacturerId SERIAL PRIMARY KEY,
     name VARCHAR(255),
     imagePath VARCHAR(255)

@@ -11,42 +11,42 @@
                         <input type="radio" class="custom-control-input" {{#unless categoryId}}checked{{/unless}}
                             id="categories-all" name="categoryId" value="all">
                         <label class="custom-control-label" for="categories-all">All categories</label>
-                        <span class="badge border font-weight-normal">1000</span>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
                     {{#each categories}}
                     <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
                         <input type="radio" class="custom-control-input" name="categoryId" id="categories{{categoryid}}"
                             {{#if (eq categoryid ../categoryId)}}checked{{/if}} value="{{categoryid}}">
                         <label class="custom-control-label" for="categories{{categoryid}}">{{name}}</label>
-                        <span class="badge border font-weight-normal">150</span>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
                     {{/each}}
                 </div>
 
                 <!-- Categories End -->
 
-                <!-- Manufactures Start -->
+                <!-- Manufacturers Start -->
                 <div class="border-bottom mb-4 pb-4">
-                    <h5 class="font-weight-semi-bold mb-4">Filter by manufactures</h5>
+                    <h5 class="font-weight-semi-bold mb-4">Filter by manufacturer</h5>
                     <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
-                        <input type="radio" class="custom-control-input" {{#unless manufactureId}}checked{{/unless}}
-                            id="manufactures-all" name="manufactureId" value="all">
-                        <label class="custom-control-label" for="manufactures-all">All manufactures</label>
-                        <span class="badge border font-weight-normal">1000</span>
+                        <input type="radio" class="custom-control-input" {{#unless manufacturerId}}checked{{/unless}}
+                            id="manufacturer-all" name="manufacturerId" value="all">
+                        <label class="custom-control-label" for="manufacturer-all">All manufacturers</label>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
-                    {{#each manufactures}}
+                    {{#each manufacturers}}
                     <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
-                        <input type="radio" class="custom-control-input" name="manufactureId"
-                            id="manufactures{{manufactureid}}" value="{{manufactureid}}" {{#if (eq manufactureid
-                            ../manufactureId)}}checked{{/if}}>
-                        <label class="custom-control-label" for="manufactures{{manufactureid}}">{{name}}</label>
-                        <span class="badge border font-weight-normal">150</span>
+                        <input type="radio" class="custom-control-input" name="manufacturerId"
+                            id="manufacturer{{manufacturerid}}" value="{{manufacturerid}}" {{#if (eq manufacturerid
+                            ../manufacturerId)}}checked{{/if}}>
+                        <label class="custom-control-label" for="manufacturer{{manufacturerid}}">{{name}}</label>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
                     {{/each}}
 
                 </div>
 
-                <!-- Manufactures End -->
+                <!-- Manufacturers End -->
 
                 <!-- Stars Start -->
                 <div class="mb-5">
@@ -55,19 +55,45 @@
                         <input type="radio" class="custom-control-input" {{#unless stars}}checked{{/unless}}
                             id="stars-all" name="stars" value="all">
                         <label class="custom-control-label" for="stars-all">All stars</label>
-                        <span class="badge border font-weight-normal">1000</span>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
                     {{#for 1 5}}
                     <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
                         <input type="radio" class="custom-control-input" name="stars" id="stars{{this}}"
                             value="{{this}}" {{#if (eq this ../stars)}}checked{{/if}}>
                         <label class="custom-control-label" for="stars{{this}}">{{this}} stars</label>
-                        <span class="badge border font-weight-normal">150</span>
+                        <span class="badge border font-weight-normal"></span>
                     </div>
                     {{/for}}
                 </div>
 
-                <!-- Size End -->
+                <!-- Stars End -->
+
+
+                 <!-- Price Start -->
+                <div class="mb-5">
+                    <h5 class="font-weight-semi-bold mb-4">Filter by prices</h5>
+                    <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" class="custom-control-input" {{#unless price}}checked{{/unless}}
+                            id="prices-all" name="price" value="all">
+                        <label class="custom-control-label" for="prices-all">All prices</label>
+                        <span class="badge border font-weight-normal"></span>
+                    </div>
+                    {{#each prices}}
+                    <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" class="custom-control-input" name="price" id="price{{@index}}"
+                            value="{{@index}}" {{#if (eq @index ../price)}}checked{{/if}}
+                            >
+                        <label class="custom-control-label" for="price{{@index}}">
+                            {{#if this.to}}From: {{this.from}}$ - To: {{this.to}}${{/if}}
+                            {{#unless this.to}}Greater {{this.from}}$ {{/unless}}
+                        </label>
+                        <span class="badge border font-weight-normal"></span>
+                    </div>
+                    {{/each}}
+                </div>
+
+                <!-- Stars End -->
             </form>
         </div>
         <!-- Shop Sidebar End -->
@@ -78,13 +104,14 @@
             <div class="row pb-3">
                 <div class="col-12 pb-1">
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <form action="">
+                        <form action="" class="col-8">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search by name">
+                                <input type="text" class="form-control" placeholder="Search by name" name="name" {{#if
+                                    name}}value="{{name}}" {{/if}}>
                                 <div class="input-group-append">
-                                    <span class="input-group-text bg-transparent text-primary">
+                                    <button type="submit" class="input-group-text bg-transparent text-primary">
                                         <i class="fa fa-search"></i>
-                                    </span>
+                                    </button>
                                 </div>
                             </div>
                         </form>
@@ -114,7 +141,7 @@
                                 <h6 class="text-truncate mb-3">{{name}}</h6>
                                 <div class="d-flex justify-content-center">
                                     <h6>${{price}}</h6>
-                                    <h6 class="text-muted ml-2"><del>${{oldprice}}</del></h6>
+                                    {{!-- <h6 class="text-muted ml-2"><del>${{oldprice}}</del></h6> --}}
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
@@ -143,92 +170,92 @@
                             </li>
 
                             {{#if (lte totalPages 7)}}
-                                {{#for 1 numPages}}
-                                    <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                {{/for}}
+                            {{#for 1 totalPages}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
                             {{/if}}
 
                             {{#if (eq totalPages 8)}}
-                                {{#if (lte curPage 4)}}
-                                    {{#for 1 5}}
-                                        <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                    {{/for}}
-                                     <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    <li class="page-item"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page=8">8
-                                        </a></li>
-                                {{/if}}
-                                {{#if (gte curPage 5)}}
-                                        <li class="page-item"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
-                                        </a></li>
-                                        <li class="page-item disabled">
-                                            <span class="page-link">...</span>
-                                        </li>
-                                    {{#for 4 8}}
-                                        <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                    {{/for}}
-                                    
-                                    
-                                {{/if}}
+                            {{#if (lte curPage 4)}}
+                            {{#for 1 5}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page=8">8
+                                </a></li>
+                            {{/if}}
+                            {{#if (gte curPage 5)}}
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
+                                </a></li>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {{#for 4 8}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
+
+
+                            {{/if}}
                             {{/if}}
 
                             {{#if (gte totalPages 9)}}
-                                {{#if (lte curPage 4)}}
-                                    {{#for 1 5}}
-                                        <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                    {{/for}}
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    <li class="page-item"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{totalPages}}">{{totalPages}}
-                                        </a></li>
-                                {{/if}}
+                            {{#if (lte curPage 4)}}
+                            {{#for 1 5}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{totalPages}}">{{totalPages}}
+                                </a></li>
+                            {{/if}}
 
-                                {{#if (gte curPage (subtract totalPages 3))}}
-                                    <li class="page-item"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
-                                        </a></li>
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    {{#for (subtract totalPages 4) totalPages}}
-                                        <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                    {{/for}}
-                                {{/if}}
+                            {{#if (gte curPage (subtract totalPages 3))}}
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
+                                </a></li>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {{#for (subtract totalPages 4) totalPages}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
+                            {{/if}}
 
-                                {{#if (inRange curPage 5 (subtract totalPages 4))}}
-                                    <li class="page-item"><a class="page-link"
-                                                href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
-                                            </a></li>
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    {{#for (subtract curPage 1) (add curPage 1)}}
-                                        <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
-                                        </a></li>
-                                    {{/for}}
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                    <li class="page-item"><a class="page-link"
-                                            href="?{{#if ../query}}{{../query}}&{{/if}}page={{totalPages}}">{{totalPages}}
-                                        </a></li>
-                                {{/if}}
+                            {{#if (inRange curPage 5 (subtract totalPages 4))}}
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page=1">1
+                                </a></li>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {{#for (subtract curPage 1) (add curPage 1)}}
+                            <li class="page-item {{#if (eq this ../curPage)}}active{{/if}}"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{this}}">{{this}}
+                                </a></li>
+                            {{/for}}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    href="?{{#if ../query}}{{../query}}&{{/if}}page={{totalPages}}">{{totalPages}}
+                                </a></li>
+                            {{/if}}
                             {{/if}}
 
                             <!-- Next Page -->
@@ -254,7 +281,22 @@
     // JavaScript để tự động submit form khi radio button thay đổi
     document.querySelectorAll('#filter-form input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            document.getElementById('filter-form').submit();
+            const nameInput = document.querySelector('form[action=""] input[name="name"]');
+            const filterForm = document.getElementById('filter-form');
+
+            if (nameInput && nameInput.value.trim() !== "") {
+                // Tạo một input ẩn trong form
+                let hiddenInput = filterForm.querySelector('input[name="name"]');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'name';
+                    filterForm.prepend(hiddenInput);
+                }
+                hiddenInput.value = nameInput.value.trim();
+            }
+
+            filterForm.submit();
         });
     });
 </script>

@@ -2,45 +2,62 @@ const express = require('express');
 const router = express.Router();
 const productsModel = require("../models/productsModel");
 const categoriesModel = require("../models/categoriesModel");
-const manufacturesModel = require("../models/manufacturesModel");
+const manufacturersModel = require("../models/manufacturersModel");
+const { pagination, prices } = require("../config/config");
 
-const limit = 1;
 // Route trang About
 router.get('/', async (req, res) => {
     const curPage = +req.query.page || 1;
     const categoryId = +req.query.categoryId;
-    const manufactureId = +req.query.manufactureId;
+    const manufacturerId = +req.query.manufacturerId;
     const stars = +req.query.stars;
+    const name = req.query.name;
+    const price = +req.query.price;
 
-    const offset = (curPage - 1) * limit
+    const offset = (curPage - 1) * pagination.limit
 
-    const queryParams=[]
-    if (categoryId) {
-        queryParams.push(`categoryId=${categoryId}`);
+    const aQuery = [];
+    const aCondition = [];
+    if (name) {
+        aQuery.push(`name=${name}`);
+        aCondition.push(`name ilike '%${name}%'`);
     }
-    if (manufactureId) {
-        queryParams.push(`manufactureId=${manufactureId}`);
+    if (categoryId) {
+        aQuery.push(`categoryId=${categoryId}`);
+        aCondition.push(`categoryId=${categoryId}`);
+    }
+    if (manufacturerId) {
+        aQuery.push(`manufacturerId=${manufacturerId}`);
+        aCondition.push(`manufacturerId=${manufacturerId}`);
     }
     if (stars) {
-        queryParams.push(`stars=${stars}`);
+        aQuery.push(`stars=${stars}`);
+        aCondition.push(`stars=${stars}`);
     }
+    if (price >= 0) {
+        aQuery.push(`price=${price}`);
+        if (price == 3) {
 
-    const query =queryParams.join("&");
-    const condition = queryParams.join(" and ");
+            aCondition.push(`price >= ${prices[price].from}`)
+        }
+        else {
+            aCondition.push(`price between ${prices[price].from} and ${prices[price].to}`);
+        }
+    }
+    const query = aQuery.join("&");
+    const condition = aCondition.join(" and ");
 
-    console.log(condition)
 
-    const [productsResult, categoriesResult, manufacturesResult, totalResult] = await Promise.all([
-        productsModel.filterByCondition(condition, limit, offset),
+    const [productsResult, categoriesResult, manufacturersResult, totalResult] = await Promise.all([
+        productsModel.filterByCondition(condition, pagination.limit, offset),
         categoriesModel.findAll(),
-        manufacturesModel.findAll(),
+        manufacturersModel.findAll(),
         productsModel.countByCondition(condition)]);
 
     const products = productsResult.rows;
     const categories = categoriesResult.rows;
-    const manufactures = manufacturesResult.rows;
-    const totalPages = +totalResult.rows[0].total;
-    const numPages = Math.ceil(totalPages / limit);
+    const manufacturers = manufacturersResult.rows;
+    const totalPages = Math.ceil(+totalResult.rows[0].total / pagination.limit);
     const prevPage = curPage - 1 >= 1 ? curPage - 1 : undefined;
     const nextPage = curPage + 1 <= totalPages ? curPage + 1 : undefined;
 
@@ -50,23 +67,25 @@ router.get('/', async (req, res) => {
         currentPage: 'shop',
         products,
         categories,
-        manufactures,
-        numPages,
+        manufacturers,
         curPage,
         categoryId,
-        manufactureId,
+        manufacturerId,
+        price,
         stars,
         query,
         prevPage,
         nextPage,
-        totalPages
+        totalPages,
+        name,
+        prices
     });
 });
 
 router.get('/:id', async (req, res) => {
     const id = +req.params.id;
     const product = (await productsModel.findOne(id)).rows[0];
-    console.log(id, product);
+
     res.render('detail', {
         title: 'Shop Detail',
         message: 'Shop Detail',
