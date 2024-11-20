@@ -94,7 +94,7 @@ INSERT INTO Categories (name, imagePath)
 VALUES
     ('Shoes', '/img/categories/Shoes.jpg'),
     ('Clothing', '/img/categories/Clothing.jpg'),
-    ('Ball', '/img/categories/Ball.jpg'),
+    ('Bags', '/img/categories/Bags.jpg'),
     ('Accessories', '/img/categories/Accessories.jpg');
 
 

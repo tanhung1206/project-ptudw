@@ -23,5 +23,11 @@ module.exports = {
     },
     findRelated(id, categoryId, limit) {
         return db.query(`select * from ${tableName} where productid<>${id} and categoryid=${categoryId} order by random() limit ${limit}`);
+    },
+    findTrendy(limit) {
+        return db.query(`select * from ${tableName} where sold_quantity is not null order by sold_quantity desc limit ${limit}`);
+    },
+    findJustArrived(limit) {
+        return db.query(`select * from ${tableName} where createdat is not null order by createdat desc limit ${limit}`);
     }
 }
