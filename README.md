@@ -12,7 +12,7 @@
 ### Bước 3: Set up .env
 
 1. Cập nhật cấu hình kết nối PostgreSQL:  
-    Example:
+    **Example**:
    DB_USER=postgres
    DB_HOST=localhost
    DB_DATABASE=shop
