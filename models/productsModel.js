@@ -20,6 +20,8 @@ module.exports = {
     countByCondition(codition) {
         if (codition) return db.query(`select count(*) as total from ${tableName} where ${codition}`);
         else return db.query(`select count(*) as total from ${tableName}`);
+    },
+    findRelated(id, categoryId, limit) {
+        return db.query(`select * from ${tableName} where productid<>${id} and categoryid=${categoryId} order by random() limit ${limit}`);
     }
-
 }
