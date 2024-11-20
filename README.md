@@ -12,11 +12,11 @@
 ### Bước 3: Set up .env
 
 1. Cập nhật cấu hình kết nối PostgreSQL:  
-    **Example**:\\
-   DB_USER=postgres\\
-   DB_HOST=localhost\\
-   DB_DATABASE=shop\\
-   DB_PASSWORD=your password\\
+    **Example**:<br>
+   DB_USER=postgres<br>
+   DB_HOST=localhost<br>
+   DB_DATABASE=shop<br>
+   DB_PASSWORD=your password<br>
    DB_PORT=5432
 2. Chạy lệnh "node setupEnv.js" để cập nhật SESSION_SECRET
 
