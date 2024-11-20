@@ -4,41 +4,78 @@
         <div class="col-lg-6 offset-lg-3">
             <div class="bg-light p-5">
                 <h4 class="font-weight-semi-bold mb-4">Create Your Account</h4>
+
+                <!-- Success Message -->
+                {{#if success}}
+                <div class="alert alert-success text-center">
+                    Registration successful! Please <a href="/login">log in</a>.
+                </div>
+                {{/if}}
+
                 <form method="POST" action="/register">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <!-- Username Field -->
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" class="form-control" id="username" placeholder="Enter username" required
-                            name="username">
+                            name="username" aria-describedby="usernameHelp" />
                         {{#if usernameError}}
-                        <p style="color:red">{{usernameError}}</p>
+                        <div id="usernameHelp" class="text-danger">{{usernameError}}</div>
                         {{/if}}
                     </div>
+
+                    <!-- Email Field -->
                     <div class="form-group">
                         <label for="email">Email address</label>
                         <input type="email" class="form-control" id="email" placeholder="Enter email" required
-                            name="email">
+                            name="email" aria-describedby="emailHelp" />
                         {{#if emailError}}
-                        <p style="color:red">{{emailError}}</p>
+                        <div id="emailHelp" class="text-danger">{{emailError}}</div>
                         {{/if}}
                     </div>
+
+                    <!-- Password Field -->
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" placeholder="Password" required
-                            name="password">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" placeholder="Password" required
+                                name="password" aria-describedby="passwordHelp" />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                    aria-label="Toggle password visibility">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {{#if passwordError}}
+                        <div id="passwordHelp" class="text-danger">{{passwordError}}</div>
+                        {{/if}}
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+
+                    <!-- Confirm Password Field -->
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm-password" placeholder="Confirm Password"
+                            required name="confirmPassword" aria-describedby="confirmPasswordHelp" />
+                        {{#if confirmPasswordError}}
+                        <div id="confirmPasswordHelp" class="text-danger">{{confirmPasswordError}}</div>
+                        {{/if}}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submit-button" class="btn btn-primary btn-block" disabled>
+                        Register
+                    </button>
                 </form>
+
+                <!-- Redirect to Login -->
+                <div class="text-center mt-3">
+                    Already have an account? <a href="/login">Log in</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-{{#if success}}
-<script>
-    window.onload = function () {
-        alert("Register successful");
-    };
-
-</script>
-{{/if}}
 <!-- Register End -->
+<script src="/js/register.js"></script>

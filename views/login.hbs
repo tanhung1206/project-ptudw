@@ -4,19 +4,74 @@
         <div class="col-lg-6 offset-lg-3">
             <div class="bg-light p-5">
                 <h4 class="font-weight-semi-bold mb-4">Login to Your Account</h4>
-                <form>
+
+                <!-- Error Message -->
+                {{#if errorMessage}}
+                <div id="error-message" class="alert alert-danger" role="alert">
+                    {{errorMessage}}
+                </div>
+                {{else}}
+                <div id="error-message" class="alert alert-danger d-none" role="alert">
+                    <!-- Error message will go here -->
+                </div>
+                {{/if}}
+
+                <!-- Login Form -->
+                <form id="login-form" action="/login" method="POST">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <!-- Username Field -->
                     <div class="form-group">
                         <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" placeholder="Enter User Name" required>
+                        <input type="text" class="form-control" id="username" name="username"
+                            placeholder="Enter User Name" required aria-describedby="usernameHelp" />
                     </div>
+
+                    <!-- Password Field with Toggle Visibility -->
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Password" required />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                    aria-label="Toggle password visibility">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Remember Me -->
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="remember-me" name="remember-me">
+                        <label class="form-check-label" for="remember-me">Remember Me</label>
+                    </div>
+
+                    <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary btn-block">Login</button>
                 </form>
+
+                <!-- Forgot Password -->
+                <div class="text-right mt-2">
+                    <a href="/forgot-password">Forgot Password?</a>
+                </div>
+
+                <!-- Social Login -->
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary"><i class="fab fa-google"></i> Login with Google</button>
+                    <button class="btn btn-outline-primary"><i class="fab fa-facebook-f"></i> Login with
+                        Facebook</button>
+                </div>
+
+                <!-- Register Link -->
+                <div class="text-center mt-3">
+                    <p>Don't have an account yet? <a href="/register">Register here</a></p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <!-- Login End -->
+
+<script src="/js/login.js"></script>
