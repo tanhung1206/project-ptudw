@@ -133,7 +133,7 @@ const cartRouter = require('./controllers/cartController');
 const checkoutRouter = require('./controllers/checkoutController');
 const contactRouter = require('./controllers/contactController');
 const indexRouter = require('./controllers/indexController');
-const loginRouter = require('./controllers/loginController');
+const usersRouter = require('./controllers/usersController');
 const registerRouter = require('./controllers/registerController');
 const productsRouter = require('./controllers/productsController');
 
@@ -142,7 +142,7 @@ app.use('/about', aboutRouter);
 app.use('/cart', cartRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/contact', contactRouter);
-app.use('/login', loginRouter);
+app.use('/user', usersRouter);
 app.use('/register', registerRouter);
 app.use('/products', productsRouter);
 

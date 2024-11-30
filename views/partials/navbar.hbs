@@ -41,15 +41,15 @@
                                     style="width: 40px; height: 40px;">
                             </a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="/profile" class="dropdown-item">Profile</a>
-                                <a href="/login/logout" class="dropdown-item">Logout</a>
+                                <a href="/user/profile" class="dropdown-item">Profile</a>
+                                <a href="/user/logout" class="dropdown-item">Logout</a>
                             </div>
                         </div>
                         {{else}}
                         <!-- Login and Register Links -->
-                        <a href="/login"
+                        <a href="/user/login"
                             class="nav-item nav-link {{#if (eq currentPage 'login')}}active{{/if}}">Login</a>
-                        <a href="/register"
+                        <a href="/user/register"
                             class="nav-item nav-link {{#if (eq currentPage 'register')}}active{{/if}}">Register</a>
                         {{/if}}
                     </div>
