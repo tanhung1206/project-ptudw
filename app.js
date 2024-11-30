@@ -117,7 +117,7 @@ app.use(async (req, res, next) => {
 
     // Đưa thông tin user vào res.locals để dùng trong views
     // res.locals.user = req.session.user || null;
-    res.locals.user=req.user;
+    res.locals.user = req.user;
     // if(req.isAuthenticated()){
     //     console.log("da au");
     // }
@@ -139,7 +139,7 @@ const productsRouter = require('./controllers/productsController');
 
 app.use('/', indexRouter);
 app.use('/about', aboutRouter);
-app.use('/cart', cartRouter);
+app.use('/cart', require("./middlewares/restrict"), cartRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/contact', contactRouter);
 app.use('/user', usersRouter);

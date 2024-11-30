@@ -121,4 +121,10 @@ router.get("/logout",(req,res)=>{
     })
 })
 
+router.get("/profile",require("../middlewares/restrict"),(req,res)=>{
+    res.render("profile",{
+        layout:"index-layout"
+    });
+})
+
 module.exports = router;
