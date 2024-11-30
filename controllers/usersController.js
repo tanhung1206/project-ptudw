@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const passport = require("passport");
 
 // GET /login - Render the login page
-router.get('/', (req, res) => {
+router.get('/login', (req, res) => {
     res.render('login', {
         title: 'Login',
         message: 'Login',
@@ -67,7 +67,7 @@ router.get('/', (req, res) => {
 //     }
 // });
 
-router.post("/", (req, res, next) => {
+router.post("/login", (req, res, next) => {
     passport.authenticate("local", (error, user, info) => {
         if (error) {
             console.error('Login Error:', error);
@@ -117,7 +117,7 @@ router.post("/", (req, res, next) => {
 
 router.get("/logout",(req,res)=>{
     req.logOut((err)=>{
-        res.redirect('/login');
+        res.redirect('/user/login');
     })
 })
 
