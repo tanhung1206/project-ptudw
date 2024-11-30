@@ -14,6 +14,15 @@ router.get('/login', (req, res) => {
     });
 });
 
+// GET /user/register - Render the registration page
+router.get('/register', (req, res) => {
+    res.render('register', {
+        title: 'Register',
+        message: 'Register',
+        currentPage: 'register',
+    });
+});
+
 // POST /login - Handle login form submission
 // router.post('/', async (req, res) => {
 //     const { username, password } = req.body;
