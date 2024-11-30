@@ -1,6 +1,9 @@
 const db = require("../db/db");
 const tableName = "Users";
 module.exports = {
+    findById(id){
+        return db.query(`select * from ${tableName} where userid='${id}'`);
+    },
     findByUserName(username) {
         return db.query(`select * from ${tableName} where username='${username}'`);
     }

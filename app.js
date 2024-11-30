@@ -2,6 +2,10 @@ const express = require('express');
 const session = require('express-session'); // Import express-session
 const { engine } = require('express-handlebars');
 const path = require('path');
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcryptjs");
+const usersModel = require("./models/usersModel");
 require('dotenv').config(); // Load environment variables from .env
 
 const app = express();
@@ -63,6 +67,48 @@ app.use(express.urlencoded({ extended: false }));
 // Định nghĩa thư mục chứa các file tĩnh
 app.use(express.static(path.join(__dirname, '/public')));
 
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(async (username, password, done) => {
+    try {
+        if (!username || !password) {
+            return done(null, false, "Username and password are required.");
+        }
+        const userResult = await usersModel.findByUserName(username);
+        if (userResult.rows.length === 0) {
+            return done(null, false, "Invalid username or password.");
+        }
+        const user = userResult.rows[0];
+        // console.log(user);
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return done(null, false, "Invalid username or password.");
+        }
+        return done(null, user);
+    }
+    catch (err) {
+        return done(err, null, "An error occurred. Please try again later.");
+    }
+}))
+
+passport.serializeUser((user, done) => {
+    done(null, user.userid);
+})
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const userResult = await usersModel.findById(id);
+        const user = userResult.rows[0];
+        // console.log(user);
+        done(null, user);
+    }
+    catch (err) {
+        done(err);
+    }
+})
+
 // Middleware toàn cục: Cung cấp danh sách categories và thông tin user
 app.use(async (req, res, next) => {
     const categoriyModel = require("./models/categoriesModel");
@@ -70,8 +116,14 @@ app.use(async (req, res, next) => {
     res.locals.categories = categories;
 
     // Đưa thông tin user vào res.locals để dùng trong views
-    res.locals.user = req.session.user || null;
-
+    // res.locals.user = req.session.user || null;
+    res.locals.user=req.user;
+    // if(req.isAuthenticated()){
+    //     console.log("da au");
+    // }
+    // else{
+    //     console.log("chua au")
+    // }
     next();
 });
 
