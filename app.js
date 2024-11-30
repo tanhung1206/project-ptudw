@@ -127,31 +127,6 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Authentication Middleware
-function isAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next(); // Proceed if the user is authenticated
-    }
-    res.redirect('/user/login'); // Redirect to login if the user is not authenticated
-}
-
-// Cart route - only accessible if the user is logged in
-app.get('/cart', isAuthenticated, (req, res) => {
-    res.render('cart', {
-        title: 'Shopping Cart',
-        currentPage: 'cart',
-        user: req.user, // Pass user data if needed
-    });
-});
-
-// Checkout route
-app.get('/checkout', isAuthenticated, (req, res) => {
-    res.render('checkout', {
-        title: 'Checkout',
-        currentPage: 'checkout',
-        user: req.user, // Pass user data if needed
-    });
-});
 // Import và sử dụng các controllers
 const aboutRouter = require('./controllers/aboutController');
 const cartRouter = require('./controllers/cartController');
@@ -164,8 +139,8 @@ const productsRouter = require('./controllers/productsController');
 
 app.use('/', indexRouter);
 app.use('/about', aboutRouter);
-//app.use('/cart', require("./middlewares/restrict"), cartRouter);
-//app.use('/checkout', require("./middlewares/restrict"), checkoutRouter);
+app.use('/cart', require("./middlewares/restrict"), cartRouter);
+app.use('/checkout', require("./middlewares/restrict"), checkoutRouter);
 app.use('/contact', contactRouter);
 app.use('/user', usersRouter);
 app.use('/register', registerRouter);
