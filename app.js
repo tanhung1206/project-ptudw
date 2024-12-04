@@ -124,6 +124,20 @@ app.use(async (req, res, next) => {
     // else{
     //     console.log("chua au")
     // }
+
+    if(req.isAuthenticated()){
+        const cartModel = require("./models/cartModel");
+        const carts = await cartModel.findByUserId(req.user.userid);
+        carts.forEach((item) => {
+            item.totalPrice = item.quantity * item.price;
+        })
+        const [totalPrices,totalQuantities] = carts.reduce((total, cur) => {
+            return [total[0]+cur.totalPrice,total[1]+cur.quantity];
+        }, [0,0]);
+        res.locals.carts=carts;
+        res.locals.totalPrices=totalPrices;
+        res.locals.totalQuantities=totalQuantities
+    }
     next();
 });
 
@@ -134,16 +148,16 @@ const checkoutRouter = require('./controllers/checkoutController');
 const contactRouter = require('./controllers/contactController');
 const indexRouter = require('./controllers/indexController');
 const usersRouter = require('./controllers/usersController');
-const registerRouter = require('./controllers/registerController');
+// const registerRouter = require('./controllers/registerController');
 const productsRouter = require('./controllers/productsController');
 
 app.use('/', indexRouter);
 app.use('/about', aboutRouter);
 app.use('/cart', require("./middlewares/restrict"), cartRouter);
-app.use('/checkout', checkoutRouter);
+app.use('/checkout',require("./middlewares/restrict"), checkoutRouter);
 app.use('/contact', contactRouter);
 app.use('/user', usersRouter);
-app.use('/register', registerRouter);
+// app.use('/register', registerRouter);
 app.use('/products', productsRouter);
 
 
