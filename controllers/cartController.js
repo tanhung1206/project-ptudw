@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
     const userid = req.user.userid;
     const products = (await cartsModel.findAllWithProductDetails(userid)).rows;
 
-    console.log(products);
+    // console.log(products);
 
     res.render('cart', {
         title: 'Shopping Cart',
