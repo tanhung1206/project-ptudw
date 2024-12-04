@@ -6,6 +6,7 @@ const cartsModel = require("../models/cartsModel");
 router.get('/', async (req, res) => {
     const userid = req.user.userid;
     const products = (await cartsModel.findAllWithProductDetails(userid)).rows;
+
     console.log(products);
 
     res.render('cart', {
@@ -21,7 +22,13 @@ router.post('/add', (req, res) => {
     const quantity = +req.body.quantity;
     const userid = req.user.userid;
     cartsModel.insertCartProduct(id, quantity, userid);
-    res.send(`Product ${id} has been added to cart for user ${userid} with quantity ${quantity}`);
+    res.send(`Đã thêm sản phẩm vào giỏ hàng!`);
+});
+
+router.post('/remove', (req, res) => {
+    const id = +req.body.id;
+    const userid = req.user.userid;
+    cartsModel.removeCartProduct(id, userid);
 });
 
 module.exports = router;

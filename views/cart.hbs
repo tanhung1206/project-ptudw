@@ -5,6 +5,7 @@
             <table class="table table-bordered text-center mb-0">
                 <thead class="bg-secondary text-dark">
                     <tr>
+                        <th>ID</th>
                         <th>Products</th>
                         <th>Price</th>
                         <th>Quantity</th>
@@ -15,6 +16,7 @@
                 <tbody class="align-middle">
                     {{#each products}}
                     <tr>
+                        <td class="align-middle">{{this.productid}}</td>
                         <td class="align-middle"><img src="{{this.imagepath}}" alt="" style="width: 50px;">
                             {{this.name}}
                         </td>
@@ -27,7 +29,7 @@
                                     </button>
                                 </div>
                                 <input type="text" class="form-control form-control-sm bg-secondary text-center"
-                                    value="{{this.quantity}}">
+                                    value="{{this.quantity}}" readonly>
                                 <div class="input-group-btn">
                                     <button class="btn btn-sm btn-primary btn-plus">
                                         <i class="fa fa-plus"></i>
@@ -36,7 +38,7 @@
                             </div>
                         </td>
                         <td class="align-middle">${{this.total}}</td>
-                        <td class="align-middle"><button class="btn btn-sm btn-primary"><i
+                        <td class="align-middle"><button class="btn btn-sm btn-primary btn-remove"><i
                                     class="fa fa-times"></i></button></td>
                     </tr>
                     {{/each}}
@@ -59,17 +61,17 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-3 pt-1">
                         <h6 class="font-weight-medium">Subtotal</h6>
-                        <h6 class="font-weight-medium">$150</h6>
+                        <h6 class="font-weight-medium" id="subtotal">$150</h6>
                     </div>
                     <div class="d-flex justify-content-between">
                         <h6 class="font-weight-medium">Shipping</h6>
-                        <h6 class="font-weight-medium">$10</h6>
+                        <h6 class="font-weight-medium" id="shipping">$10</h6>
                     </div>
                 </div>
                 <div class="card-footer border-secondary bg-transparent">
                     <div class="d-flex justify-content-between mt-2">
                         <h5 class="font-weight-bold">Total</h5>
-                        <h5 class="font-weight-bold">$160</h5>
+                        <h5 class="font-weight-bold" id="total">$160</h5>
                     </div>
                     <button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button>
                 </div>
@@ -78,3 +80,122 @@
     </div>
 </div>
 <!-- Cart End -->
+<script>
+    document.querySelectorAll('.btn-minus').forEach(button => {
+        const row = button.closest('tr');
+        const input = row.querySelector('input');
+        let quantity = parseInt(input.value);
+        if (quantity == 1) {
+            button.disabled = true;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const updateTotal = (row, quantity) => {
+            const price = parseFloat(row.querySelector('.align-middle:nth-child(3)').textContent.replace('$', ''));
+            const total = price * quantity;
+            row.querySelector('.align-middle:nth-child(5)').textContent = `$${total.toFixed(0)}`;
+        };
+
+        const updateCartSummary = () => {
+            let subtotal = 0;
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const total = parseFloat(row.querySelector('.align-middle:nth-child(5)').textContent.replace('$', ''));
+                subtotal += total;
+            });
+            const shipping = 10; // Fixed shipping cost
+            const total = subtotal + shipping;
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(0)}`;
+            document.getElementById('shipping').textContent = `$${shipping.toFixed(0)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(0)}`;
+        };
+
+        document.querySelectorAll('.btn-minus').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const input = row.querySelector('input');
+                let quantity = parseInt(input.value);
+                if (quantity > 0) {
+                    // quantity--;
+                    // input.value = quantity;
+                    updateTotal(row, quantity);
+                    document.querySelector('.badge').textContent = parseInt(document.querySelector('.badge').textContent) - 1;
+                    updateCartSummary();
+
+                    // Update the quantity in the database
+                    const id = row.querySelector('.align-middle:nth-child(1)').textContent;
+                    fetch(`/cart/add`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            quantity: -1
+                        })
+                    }).then(response => response.json()).then(data => {
+                        console.log(data);
+                    });
+                }
+                if (quantity == 1) {
+                    row.querySelector('.btn-minus').disabled = true;
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-plus').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const input = row.querySelector('input');
+                let quantity = parseInt(input.value);
+                // quantity++;
+                // input.value = quantity;
+                updateTotal(row, quantity);
+                document.querySelector('.badge').textContent = parseInt(document.querySelector('.badge').textContent) + 1;
+                row.querySelector('.btn-minus').disabled = false;
+                updateCartSummary();
+
+                // Update the quantity in the database
+                const id = row.querySelector('.align-middle:nth-child(1)').textContent;
+                fetch(`/cart/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        quantity: 1
+                    })
+                }).then(response => response.json()).then(data => {
+                    console.log(data);
+                });
+            });
+        });
+
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const quantity = parseInt(row.querySelector('input').value);
+                row.remove();
+                document.querySelector('.badge').textContent = parseInt(document.querySelector('.badge').textContent) - quantity;
+                updateCartSummary();
+
+                // Remove the product from the database
+                const id = row.querySelector('.align-middle:nth-child(1)').textContent;
+                fetch(`/cart/remove`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                }).then(response => response.json()).then(data => {
+                    console.log(data);
+                });
+            });
+        });
+
+        updateCartSummary();
+    });
+</script>

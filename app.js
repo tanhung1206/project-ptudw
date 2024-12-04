@@ -6,6 +6,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const usersModel = require("./models/usersModel");
+const cartsModel = require("./models/cartsModel");
 require('dotenv').config();
 
 const app = express();
@@ -114,10 +115,17 @@ app.use(async (req, res, next) => {
     const categoriyModel = require("./models/categoriesModel");
     const categories = (await categoriyModel.findAll()).rows;
     res.locals.categories = categories;
+    res.locals.user = req.user;
+
+    res.locals.sum_quantity = 0;
+    if (req.user) {
+        const userid = req.user.userid;
+        const sum_quantity = (await cartsModel.getQuantity(userid)).rows[0].total;
+        res.locals.sum_quantity = sum_quantity;
+    }
 
     // Đưa thông tin user vào res.locals để dùng trong views
     // res.locals.user = req.session.user || null;
-    res.locals.user = req.user;
     // if(req.isAuthenticated()){
     //     console.log("da au");
     // }
