@@ -154,11 +154,7 @@ const productsRouter = require('./controllers/productsController');
 app.use('/', indexRouter);
 app.use('/about', aboutRouter);
 app.use('/cart', require("./middlewares/restrict"), cartRouter);
-<<<<<<< HEAD
-app.use('/checkout',require("./middlewares/restrict"), checkoutRouter);
-=======
 app.use('/checkout', require("./middlewares/restrict"), checkoutRouter);
->>>>>>> c53b349d0c1144206f33468aa7581cda75b2fe51
 app.use('/contact', contactRouter);
 app.use('/user', usersRouter);
 // app.use('/register', registerRouter);
