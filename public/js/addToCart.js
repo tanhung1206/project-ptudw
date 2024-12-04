@@ -1,6 +1,12 @@
 // JavaScript để thêm sản phẩm vào giỏ hàng
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function () {
+        const avatarImg = document.querySelector('a.nav-link.dropdown-toggle img.rounded-circle');
+        if (!avatarImg) {
+            alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!');
+            window.location.href = '/user/login';
+        }
+
         const productId = this.getAttribute('data-id');
 
         fetch('/cart/add', {

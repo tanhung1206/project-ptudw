@@ -266,6 +266,12 @@
 
     document.querySelectorAll('.btn-cart').forEach(button => {
         button.addEventListener('click', function () {
+            const avatarImg = document.querySelector('a.nav-link.dropdown-toggle img.rounded-circle');
+            if (!avatarImg) {
+                alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!');
+                window.location.href = '/user/login';
+            }
+
             const url = new URL(window.location.href);
             const pathSegments = url.pathname.split('/');
             const productId = pathSegments[pathSegments.length - 1];
