@@ -76,12 +76,10 @@ passport.use(new LocalStrategy(async (username, password, done) => {
         if (!username || !password) {
             return done(null, false, "Username and password are required.");
         }
-        const userResult = await usersModel.findByUserName(username);
-        if (userResult.rows.length === 0) {
+        const user = (await usersModel.findByUserName(username))[0];
+        if (!user) {
             return done(null, false, "Invalid username or password.");
         }
-        const user = userResult.rows[0];
-        // console.log(user);
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return done(null, false, "Invalid username or password.");
@@ -99,9 +97,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const userResult = await usersModel.findById(id);
-        const user = userResult.rows[0];
-        // console.log(user);
+        const user = (await usersModel.findById(id))[0];
         done(null, user);
     }
     catch (err) {
@@ -118,13 +114,7 @@ app.use(async (req, res, next) => {
     // Đưa thông tin user vào res.locals để dùng trong views
     // res.locals.user = req.session.user || null;
     res.locals.user = req.user;
-    // if(req.isAuthenticated()){
-    //     console.log("da au");
-    // }
-    // else{
-    //     console.log("chua au")
-    // }
-
+    
     if(req.isAuthenticated()){
         const cartModel = require("./models/cartModel");
         const carts = await cartModel.findByUserId(req.user.userid);
@@ -159,6 +149,8 @@ app.use('/contact', contactRouter);
 app.use('/user', usersRouter);
 // app.use('/register', registerRouter);
 app.use('/products', productsRouter);
+
+app.use("/api/products",require("./controllers/apiProducts"));
 
 
 // Khởi động server

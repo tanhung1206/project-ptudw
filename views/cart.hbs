@@ -25,8 +25,8 @@
                                         <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
-                                <input type="text" class="form-control form-control-sm bg-secondary text-center" id="quantity{{productid}}"
-                                    value="{{quantity}}" readonly>
+                                <input type="text" class="form-control form-control-sm bg-secondary text-center"
+                                    id="item_quantity{{productid}}" value="{{quantity}}" readonly>
                                 <div class="input-group-btn">
                                     <button class="btn btn-sm btn-primary btn-plus">
                                         <i class="fa fa-plus"></i>
@@ -58,7 +58,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-3 pt-1">
                         <h6 class="font-weight-medium">Subtotal</h6>
-                        <h6 class="font-weight-medium">$<span id="subtotal">{{totalPrices}}</span></h6>
+                        <h6 class="font-weight-medium">$<span id="subtotals">{{totalPrices}}</span></h6>
                     </div>
                     <div class="d-flex justify-content-between">
                         <h6 class="font-weight-medium">Shipping</h6>
@@ -68,9 +68,10 @@
                 <div class="card-footer border-secondary bg-transparent">
                     <div class="d-flex justify-content-between mt-2">
                         <h5 class="font-weight-bold">Total</h5>
-                        <h5 class="font-weight-bold">$<span id="total">{{add totalPrices 10}}</span></h5>
+                        <h5 class="font-weight-bold">$<span id="totals">{{add totalPrices 10}}</span></h5>
                     </div>
-                    <a href="/checkout"><button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button></a>
+                    <a href="/checkout"><button class="btn btn-block btn-primary my-3 py-3">Proceed To
+                            Checkout</button></a>
                 </div>
             </div>
         </div>
@@ -83,43 +84,43 @@
 
 <script>
     $('.quantity button').on('click', function () {
-        var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
+        const button = $(this);
         const productid = button.parent().parent().data("id");
-        const price = +$(`#item_price${productid}`).html();
-        const total = $(`#item_totalPrice${productid}`);
-        const subtotal = $("#subtotal");
-        const totals = $("#total");
+        const item_quantity = $(`#item_quantity${productid}`);
+        const oldQuantity = +item_quantity.val();
+        const totalQuantity = $('#cart-badge');
+        const oldTotalQuantity = +totalQuantity.html();
+        const item_price = +$(`#item_price${productid}`).html();
+        const item_total = $(`#item_totalPrice${productid}`);
+        const subtotals = $("#subtotals");
+        const totals = $("#totals");
+        let newQuantity = oldQuantity;
+        let newTotalQuantity = oldTotalQuantity;
         if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-            $('#cart-badge').html(+$('#cart-badge').html() + 1);
-            total.html(+total.html() + price);
-            subtotal.html(+subtotal.html() + price);
-            totals.html(+totals.html() + price);
+            newQuantity = oldQuantity + 1;
+            newTotalQuantity = oldTotalQuantity + 1;
+            subtotals.html(+subtotals.html() + item_price);
+            totals.html(+ totals.html() + item_price);
         } else {
-            if (oldValue == 1) {
+            if (oldQuantity == 1) {
                 const cf = confirm("Bạn có chắc muốn xóa đơn hàng này");
                 if (cf) {
-                    var newVal = parseFloat(oldValue) - 1;
-                    $('#cart-badge').html(+$('#cart-badge').html() - 1);
-                    total.html(+total.html() - price);
-                    subtotal.html(+subtotal.html() - price);
-                    totals.html(+totals.html() - price);
-                    removeCartItem(productid);
-                }
-                else {
-                    return;
+                    newQuantity = oldQuantity - 1;
+                    newTotalQuantity = oldTotalQuantity - 1;
+                    subtotals.html(+subtotals.html() - item_price);
+                    totals.html(+ totals.html() - item_price);
                 }
             } else {
-                var newVal = parseFloat(oldValue) - 1;
-                $('#cart-badge').html(+$('#cart-badge').html() - 1);
-                total.html(+total.html() - price);
-                subtotal.html(+subtotal.html() - price);
-                totals.html(+totals.html() - price);
+                newQuantity = oldQuantity - 1;
+                newTotalQuantity = oldTotalQuantity - 1;
+                subtotals.html(+subtotals.html() - item_price);
+                totals.html(+ totals.html() - item_price);
             }
         }
-        button.parent().parent().find('input').val(newVal);
-        updateCart(productid, newVal);
+        totalQuantity.html(newTotalQuantity);
+        item_quantity.val(newQuantity);
+        item_total.html(item_price * newQuantity);
+        updateCart(productid, newQuantity);
     });
 
     $('.delete-item').on('click', function () {
@@ -127,9 +128,9 @@
         const cf = confirm("Bạn có chắc muốn xóa đơn hàng này");
         if (cf) {
             const total = +$(`#item_totalPrice${productid}`).html();
-            const quantiy=+$(`#quantity${productid}`).val();
-            const subtotal = $("#subtotal");
-            const totals = $("#total");
+            const quantiy = +$(`#item_quantity${productid}`).val();
+            const subtotal = $("#subtotals");
+            const totals = $("#totals");
             $('#cart-badge').html(+$('#cart-badge').html() - quantiy);
             subtotal.html(+subtotal.html() - total);
             totals.html(+totals.html() - total);

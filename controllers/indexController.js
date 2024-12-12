@@ -6,10 +6,11 @@ const manufacturersModel = require("../models/manufacturersModel");
 
 // Route trang Home
 router.get('/', async (req, res) => {
-    // const products = (await productsModel.findAll()).rows;
-    const trendyProducts = (await productsModel.findTrendy(10)).rows;
-    const justArrivedProducts = (await productsModel.findJustArrived(10)).rows;
-    const categories = (await categoriesModel.findAllWithCount()).rows;
+    const [trendyProducts,justArrivedProducts,categories]=await Promise.all([
+        productsModel.findTrendy(10),
+        productsModel.findJustArrived(10),
+        categoriesModel.findAllWithCount()
+    ]);
 
     res.render('index', {
         layout: 'index-layout', // Sử dụng layout khác cho trang Home

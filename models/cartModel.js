@@ -2,32 +2,26 @@ const db = require("../db/db");
 const tableName = "Cart";
 module.exports = {
     async addOrUpdate(userId, productId, quantity) {
-        try {
-            const selectQuery = `
-            SELECT quantity FROM cardproducts
+        const selectQuery = `
+        SELECT quantity FROM cardproducts
+        WHERE userid = $1 AND productid = $2
+        `;
+        const selectResult = await db.query(selectQuery, [userId, productId]);
+        if (selectResult.rowCount > 0) {
+            const updateQuery = `
+            UPDATE cardproducts
+            SET quantity = quantity + $3
             WHERE userid = $1 AND productid = $2
-          `;
-            const selectResult = await db.query(selectQuery, [userId, productId]);
-            if (selectResult.rowCount > 0) {
-                const updateQuery = `
-              UPDATE cardproducts
-              SET quantity = quantity + $3
-              WHERE userid = $1 AND productid = $2
-            `;
-                console.log("1");
-                await db.query(updateQuery, [userId, productId, quantity]);
-            } else {
-                console.log("2");
-                const insertQuery = `
-              INSERT INTO cardproducts (userid, productid, quantity)
-              VALUES ($1, $2, $3)
-            `;
-                await db.query(insertQuery, [userId, productId, quantity]);
-            }
-        }
-        catch (e) {
-            console.log("3");
-            console.log(e);
+        `;
+            const updateResult=await db.query(updateQuery, [userId, productId, quantity]);
+            return updateResult.rowCount;
+        } else {
+            const insertQuery = `
+            INSERT INTO cardproducts (userid, productid, quantity)
+            VALUES ($1, $2, $3)
+        `;
+            const insertResult=await db.query(insertQuery, [userId, productId, quantity]);
+            return insertResult.rowCount;
         }
     },
     async findByUserId(userid) {
@@ -43,7 +37,8 @@ module.exports = {
         UPDATE cardproducts
         SET quantity = $3
         WHERE userid = $1 AND productid = $2`;
-        await db.query(updateQuery, [userId, productId, quantity]);
+        const result=await db.query(updateQuery, [userId, productId, quantity]);
+        return result.rowCount;
     }
     ,
     async delete(userId, productId) {
@@ -51,7 +46,8 @@ module.exports = {
         DELETE FROM cardproducts
         WHERE userid = $1 AND productid = $2
         `;
-        await db.query(query, [userId, productId]);
+        const result=await db.query(query, [userId, productId]);
+        return result.rowCount;
     }
 
 }

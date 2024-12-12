@@ -1,7 +1,8 @@
 const db = require("../db/db");
 const tableName = "Manufacturers"
 module.exports = {
-    findAll() {
-        return db.query(`select * from ${tableName}`);
+    async findAll() {
+        const result=await db.query(`select * from ${tableName}`);
+        return result.rows;
     }
 }

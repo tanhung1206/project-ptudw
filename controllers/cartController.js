@@ -15,21 +15,21 @@ router.get('/', async (req, res) => {
 router.post("/", async (req, res) => {
     const productid = req.body.productid;
     const quantity = req.body.quantity;
-    await cartModel.addOrUpdate(req.user.userid, productid, quantity);
-    res.json(true);
+    const rowCount=await cartModel.addOrUpdate(req.user.userid, productid, quantity);
+    res.json({rowCount});
 })
 
 router.put("/", async (req, res) => {
     const productid = req.body.productid;
     const quantity = req.body.quantity;
-    await cartModel.update(req.user.userid, productid, quantity);
-    res.json(true);
+    const rowCount=await cartModel.update(req.user.userid, productid, quantity);
+    res.json({rowCount});
 })
 
 router.delete("/",async (req,res)=>{
     const productid = req.body.productid;
-    await cartModel.delete(req.user.userid, productid);
-    res.json(true);
+    const rowCount=await cartModel.delete(req.user.userid, productid);
+    res.json({rowCount});
 })
 
 module.exports = router;

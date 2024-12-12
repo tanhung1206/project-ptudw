@@ -20,8 +20,8 @@ router.post("/", async (req, res) => {
     try {
         const { username, email, password, confirmPassword } = req.body;
 
-        const usernameExists = (await usersModel.findByUserName(username)).rows[0];
-        const emailExists = (await usersModel.findByEmail(email)).rows[0];
+        const usernameExists = (await usersModel.findByUserName(username))[0];
+        const emailExists = (await usersModel.findByEmail(email))[0];
 
         const errors = {
             usernameError: usernameExists ? "Username already exists" : "",

@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const productsModel = require("../models/productsModel");
-const categoriesModel = require("../models/categoriesModel");
-const manufacturersModel = require("../models/manufacturersModel");
-const { pagination, prices } = require("../config/config");
+const { pagination,prices } = require("../config/config");
+const order={
+    name:"name",
+    creationtime:"createdat",
+    price:"price"
+}
 
-// Route trang About
 router.get('/', async (req, res) => {
     const curPage = +req.query.page || 1;
     const categoryId = +req.query.categoryId;
@@ -13,9 +15,10 @@ router.get('/', async (req, res) => {
     const stars = +req.query.stars;
     const name = req.query.name;
     const price = +req.query.price;
+    const sort=req.query.sort;
 
     const offset = (curPage - 1) * pagination.limit
-
+  
     const aQuery = [];
     const aCondition = [];
     if (name) {
@@ -44,52 +47,27 @@ router.get('/', async (req, res) => {
             aCondition.push(`price between ${prices[price].from} and ${prices[price].to}`);
         }
     }
+    if(sort){
+        aQuery.push(`sort=${sort}`);
+    }
     const query = aQuery.join("&");
     const condition = aCondition.join(" and ");
 
 
-    const [products, categories, manufacturers, totalResult] = await Promise.all([
-        productsModel.filterByCondition(condition, pagination.limit, offset),
-        categoriesModel.findAll(),
-        manufacturersModel.findAll(),
+    const [products, totalResult] = await Promise.all([
+        productsModel.filterByCondition(condition, pagination.limit, offset,order[sort]||"productid"),
         productsModel.countByCondition(condition)]);
 
     const totalPages = Math.ceil(+totalResult[0].total / pagination.limit);
     const prevPage = curPage - 1 >= 1 ? curPage - 1 : undefined;
     const nextPage = curPage + 1 <= totalPages ? curPage + 1 : undefined;
-
-    res.render('products', {
-        title: 'Our Shop',
-        message: 'Shop',
-        currentPage: 'shop',
+    res.send({
         products,
-        categories,
-        manufacturers,
-        curPage,
-        categoryId,
-        manufacturerId,
-        price,
-        stars,
-        query,
+        totalPages,
         prevPage,
         nextPage,
-        totalPages,
-        name,
-        prices
-    });
-});
-
-router.get('/:id', async (req, res) => {
-    const id = +req.params.id;
-    const product = (await productsModel.findOne(id))[0]
-    const relatedProducts = await productsModel.findRelated(id, product.categoryid, 4)
-
-    res.render('detail', {
-        title: 'Shop Detail',
-        message: 'Shop Detail',
-        currentPage: 'shop',
-        product,
-        relatedProducts
+        curPage,
+        query
     });
 });
 

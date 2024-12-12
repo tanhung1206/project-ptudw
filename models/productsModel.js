@@ -1,33 +1,52 @@
 const db = require("../db/db");
 const tableName = "Products";
 module.exports = {
-    findAll() {
-        return db.query(`select * from ${tableName}`);
+    async findAll() {
+        const result = await db.query(`select * from ${tableName}`);
+        return result.rows;
     },
-    findOne(id) {
-        return db.query(`select * from ${tableName} where productid=${id}`);
+    async findOne(id) {
+        const result = await db.query(`select * from ${tableName} where productid=${id}`);
+        return result.rows;
     },
-    findByCatId(id) {
-        return db.query(`select * from ${tableName} where categoryid=${id}`);
+    async findByCatId(id) {
+        const result = await db.query(`select * from ${tableName} where categoryid=${id}`);
+        return result.rows;
     },
-    filterByCondition(condition, limit, offset) {
-        if (condition) return db.query(`select * from ${tableName} where ${condition} limit ${limit} offset ${offset}`);
-        return db.query(`select * from ${tableName} limit ${limit} offset ${offset}`);
+    async filterByCondition(condition, limit, offset,order="productid") {
+        let result;
+        if (condition) {
+            result = await db.query(`select * from ${tableName} where ${condition} order by ${order} limit ${limit} offset ${offset}`);
+        }
+        else {
+            result = await db.query(`select * from ${tableName} order by ${order} limit ${limit} offset ${offset}`);
+        }
+        return result.rows;
     },
-    countAll() {
-        return db.query(`select count(*) as total from ${tableName}`);
+    async countAll() {
+        const result = await db.query(`select count(*) as total from ${tableName}`);
+        return result.rows;
     },
-    countByCondition(codition) {
-        if (codition) return db.query(`select count(*) as total from ${tableName} where ${codition}`);
-        else return db.query(`select count(*) as total from ${tableName}`);
+    async countByCondition(codition) {
+        let result;
+        if (codition) {
+            result = await db.query(`select count(*) as total from ${tableName} where ${codition}`)
+        }
+        else {
+            result = await db.query(`select count(*) as total from ${tableName}`)
+        }
+        return result.rows;
     },
-    findRelated(id, categoryId, limit) {
-        return db.query(`select * from ${tableName} where productid<>${id} and categoryid=${categoryId} order by random() limit ${limit}`);
+    async findRelated(id, categoryId, limit) {
+        const result = await db.query(`select * from ${tableName} where productid<>${id} and categoryid=${categoryId} order by random() limit ${limit}`);
+        return result.rows;
     },
-    findTrendy(limit) {
-        return db.query(`select * from ${tableName} where sold_quantity is not null order by sold_quantity desc limit ${limit}`);
+    async findTrendy(limit) {
+        const result = await db.query(`select * from ${tableName} where sold_quantity is not null order by sold_quantity desc limit ${limit}`);
+        return result.rows;
     },
-    findJustArrived(limit) {
-        return db.query(`select * from ${tableName} where createdat is not null order by createdat desc limit ${limit}`);
+    async findJustArrived(limit) {
+        const result = await db.query(`select * from ${tableName} where createdat is not null order by createdat desc limit ${limit}`);
+        return result.rows;
     }
 }
