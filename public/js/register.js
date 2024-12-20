@@ -1,7 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const usernameField = document.getElementById("username");
+    const emailField = document.getElementById("email");
     const passwordField = document.getElementById("password");
     const confirmPasswordField = document.getElementById("confirm-password");
     const submitButton = document.getElementById("submit-button");
+
+    // Error Elements
+    const usernameError = document.createElement("div");
+    usernameError.className = "text-danger mt-1";
+    usernameField.parentNode.appendChild(usernameError);
+
+    const emailError = document.createElement("div");
+    emailError.className = "text-danger mt-1";
+    emailField.parentNode.appendChild(emailError);
 
     const passwordError = document.createElement("div");
     passwordError.className = "text-danger mt-1";
@@ -13,6 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Password Complexity Regex
     const complexityRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Debounce function to limit AJAX calls
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
 
     // Function to validate password complexity
     const validatePasswordComplexity = () => {
@@ -30,22 +50,54 @@ document.addEventListener("DOMContentLoaded", () => {
             : "Passwords do not match.";
     };
 
+    // Function to check availability via AJAX
+    const checkAvailability = (field, type, errorElement) => {
+    const value = field.value.trim();
+
+    // If the field is empty, display a relevant message and disable the submit button
+    if (!value) {
+        errorElement.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} cannot be empty.`;
+        submitButton.disabled = true;
+        return;
+    }
+
+    // If the field is not empty, send the AJAX request to check availability
+    fetch(`/user/check-availability?${type}=${encodeURIComponent(value)}`)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.available) {
+                errorElement.textContent = "";
+            } else {
+                errorElement.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} is already taken.`;
+            }
+            updateSubmitButtonState();
+        })
+        .catch((err) => {
+            console.error(`Error checking ${type} availability:`, err);
+            errorElement.textContent = "An error occurred. Please try again.";
+            submitButton.disabled = true;
+        });
+    };
+
+    
+
     // Enable/Disable submit button
     const updateSubmitButtonState = () => {
         const isPasswordComplex = complexityRegex.test(passwordField.value);
         const doPasswordsMatch = passwordField.value === confirmPasswordField.value;
-        submitButton.disabled = !isPasswordComplex || !doPasswordsMatch;
+        const isUsernameValid = !usernameError.textContent;
+        const isEmailValid = !emailError.textContent;
+
+        submitButton.disabled = !(isPasswordComplex && doPasswordsMatch && isUsernameValid && isEmailValid);
     };
+
+    // Event listeners for username and email fields
+    usernameField.addEventListener("input", debounce(() => checkAvailability(usernameField, "username", usernameError), 300));
+    emailField.addEventListener("input", debounce(() => checkAvailability(emailField, "email", emailError), 300));
 
     // Event listeners for password validation
     passwordField.addEventListener("input", () => {
         validatePasswordComplexity();
-        updateSubmitButtonState();
-    });
-
-    // Trigger "Passwords do not match" only after clicking into confirmPasswordField
-    confirmPasswordField.addEventListener("focus", () => {
-        validatePasswordMatch();
         updateSubmitButtonState();
     });
 
@@ -63,5 +115,14 @@ document.addEventListener("DOMContentLoaded", () => {
             this.querySelector("i").classList.toggle("fa-eye");
             this.querySelector("i").classList.toggle("fa-eye-slash");
         });
+    });
+
+    // Reset form logic
+    document.querySelector("form").addEventListener("reset", () => {
+        usernameError.textContent = "";
+        emailError.textContent = "";
+        passwordError.textContent = "";
+        confirmPasswordError.textContent = "";
+        submitButton.disabled = true;
     });
 });
