@@ -13,7 +13,7 @@ module.exports = {
         const result = await db.query(`select * from ${tableName} where categoryid=${id}`);
         return result.rows;
     },
-    async filterByCondition(condition, limit, offset,order="productid") {
+    async filterByCondition(condition, limit, offset, order = "productid") {
         let result;
         if (condition) {
             result = await db.query(`select * from ${tableName} where ${condition} order by ${order} limit ${limit} offset ${offset}`);
@@ -48,5 +48,21 @@ module.exports = {
     async findJustArrived(limit) {
         const result = await db.query(`select * from ${tableName} where createdat is not null order by createdat desc limit ${limit}`);
         return result.rows;
-    }
+    },
+    async findAllReviews(id) {
+        const result = await db.query(`
+            select r.*, u.username, u.avatar
+            from reviews r
+            join users u
+            on r.userid = u.userid 
+            where r.productid=${id}
+            order by r.createdat desc, r.reviewid desc`
+        );
+        return result.rows;
+    },
+    async addReview(productid, userid, stars, review) {
+        const now = new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const result = await db.query(`insert into reviews(productid, userid, stars, review, createdat) values(${productid}, ${userid}, ${stars}, '${review}', '${now}')`);
+        return result;
+    },
 }

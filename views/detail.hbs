@@ -30,13 +30,22 @@
             <h3 class="font-weight-semi-bold">{{product.name}}</h3>
             <div class="d-flex mb-3">
                 <div class="text-primary mr-2">
-                    <small class="fas fa-star"></small>
-                    <small class="fas fa-star"></small>
-                    <small class="fas fa-star"></small>
-                    <small class="fas fa-star-half-alt"></small>
-                    <small class="far fa-star"></small>
+                    {{#each (range 1 this.average_star)}}
+                    <i class="fas fa-star"></i>
+                    {{/each}}
+                    {{#if (gte this.round_average_star this.average_star)}}
+                    <i class="far fa-star"></i>
+                    {{#each (range 1 (subtract 4 this.average_star))}}
+                    <i class="far fa-star"></i>
+                    {{/each}}
+                    {{else}}
+                    <i class="fas fa-star-half-alt"></i>
+                    {{#each (range 1 (subtract 5 this.average_star))}}
+                    <i class="far fa-star"></i>
+                    {{/each}}
+                    {{/if}}
                 </div>
-                <small class="pt-1">(50 Reviews)</small>
+                <small class="pt-1">({{reviews_count}} Reviews)</small>
             </div>
             <h3 class="font-weight-semi-bold mb-4">${{product.price}}</h3>
             <p class="mb-4">{{product.summary}}</p>
@@ -97,14 +106,16 @@
                             <i class="fa fa-minus"></i>
                         </button>
                     </div>
-                    <input type="text" class="form-control bg-secondary text-center" value="1" id="quantity{{product.productid}}">
+                    <input type="text" class="form-control bg-secondary text-center" value="1"
+                        id="quantity{{product.productid}}">
                     <div class="input-group-btn">
                         <button class="btn btn-primary btn-plus">
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>
                 </div>
-                <button class="btn btn-primary px-3 add-to-cart" data-id="{{product.productid}}"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
+                <button class="btn btn-primary px-3 add-to-cart" data-id="{{product.productid}}"><i
+                        class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
             </div>
             <div class="d-flex pt-2">
                 <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
@@ -129,65 +140,71 @@
         <div class="col">
             <div class="nav nav-tabs justify-content-center border-secondary mb-4">
                 <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1">Details</a>
-                <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2">Reviews (0)</a>
+                <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2">Reviews ({{reviews_count}})</a>
             </div>
             <div class="tab-content">
-
                 <div class="tab-pane fade active show" id="tab-pane-1">
                     <h4 class="mb-3">Detail</h4>
-                    {{product.summary}}
-                    {{{product.description}}}
+                    <p>{{product.summary}}</p>
+                    <p>{{{product.description}}}</p>
                 </div>
                 <div class="tab-pane fade" id="tab-pane-2">
                     <div class="row">
                         <div class="col-md-6">
-                            <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
+                            <h4 class="mb-4">Reviews</h4>
+                            {{#each reviews}}
                             <div class="media mb-4">
-                                <img src="/img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                <img src="{{this.avatar}}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
                                 <div class="media-body">
-                                    <h6>John Doe<small> - <i>01 Jan 2045</i></small></h6>
+                                    <h6>{{this.username}}<small> - <i>{{formatDate this.createdat
+                                                "ddd MMM DD YYYY"}}</i></small>
+                                    </h6>
                                     <div class="text-primary mb-2">
+                                        {{#each (range 1 this.stars)}}
                                         <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
+                                        {{/each}}
+                                        {{#each (range 1 (subtract 5 this.stars))}}
                                         <i class="far fa-star"></i>
+                                        {{/each}}
                                     </div>
-                                    <p>Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum
-                                        et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.</p>
+                                    <p>{{this.review}}</p>
                                 </div>
                             </div>
+                            {{/each}}
                         </div>
                         <div class="col-md-6">
                             <h4 class="mb-4">Leave a review</h4>
-                            <small>Your email address will not be published. Required fields are marked *</small>
-                            <div class="d-flex my-3">
-                                <p class="mb-0 mr-2">Your Rating * :</p>
-                                <div class="text-primary">
-                                    <i class="far fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                            </div>
-                            <form>
+                            {{#if user}}
+                            <form id="review-form">
                                 <div class="form-group">
-                                    <label for="message">Your Review *</label>
-                                    <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
+                                    <label for="message">Your Review</label>
+                                    <textarea id="message" name="review" cols="30" rows="5"
+                                        class="form-control"></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="name">Your Name *</label>
-                                    <input type="text" class="form-control" id="name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Your Email *</label>
-                                    <input type="email" class="form-control" id="email">
+                                    <label for="rating">Your Rating *</label>
+                                    <div id="rating" class="star-rating">
+                                        <span class="star" data-value="1"
+                                            style="cursor: pointer; font-size: 2em;">&#9733;</span>
+                                        <span class="star" data-value="2"
+                                            style="cursor: pointer; font-size: 2em;">&#9733;</span>
+                                        <span class="star" data-value="3"
+                                            style="cursor: pointer; font-size: 2em;">&#9733;</span>
+                                        <span class="star" data-value="4"
+                                            style="cursor: pointer; font-size: 2em;">&#9733;</span>
+                                        <span class="star" data-value="5"
+                                            style="cursor: pointer; font-size: 2em;">&#9733;</span>
+                                    </div>
+                                    <input type="hidden" name="stars" id="rating-value" required>
                                 </div>
                                 <div class="form-group mb-0">
                                     <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
                                 </div>
                             </form>
+
+                            {{else}}
+                            <p>You have to login to leave a review.</p>
+                            {{/if}}
                         </div>
                     </div>
                 </div>
@@ -239,10 +256,10 @@
 
 
 <script>
-     $('.quantity button').on('click', function () {
+    $('.quantity button').on('click', function () {
         var button = $(this);
-        const inputQuantity=button.parent().parent().find('input');
-        var oldValue =inputQuantity.val();
+        const inputQuantity = button.parent().parent().find('input');
+        var oldValue = inputQuantity.val();
         if (button.hasClass('btn-plus')) {
             var newVal = parseFloat(oldValue) + 1;
         } else {
@@ -253,5 +270,83 @@
             }
         }
         inputQuantity.val(newVal);
+    });
+
+    // Stars Rating
+    const ratingInput = document.getElementById('rating-value');
+
+    document.querySelectorAll('.star-rating .star').forEach(star => {
+        star.addEventListener('click', function () {
+            const rating = this.getAttribute('data-value');
+            ratingInput.value = rating;
+            document.getElementById('rating-value').value = rating;
+            document.querySelectorAll('.star-rating .star').forEach(s => {
+                s.style.color = s.getAttribute('data-value') <= rating ? 'gold' : 'gray';
+            });
+        });
+
+        star.addEventListener('mouseover', function () {
+            const rating = this.getAttribute('data-value');
+            document.querySelectorAll('.star-rating .star').forEach(s => {
+                s.style.color = s.getAttribute('data-value') <= rating ? 'gold' : 'gray';
+            });
+        });
+
+        star.addEventListener('mouseout', function () {
+            const rating = document.getElementById('rating-value').value;
+            document.querySelectorAll('.star-rating .star').forEach(s => {
+                s.style.color = s.getAttribute('data-value') <= rating ? 'gold' : 'gray';
+            });
+        });
+    });
+
+    // Submit review
+    $(document).ready(function () {
+        $('#review-form').on('submit', function (e) {
+            // Ngừng gửi form mặc định
+            e.preventDefault();
+
+            if (!$('#rating-value').val()) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const productid = window.location.pathname.split('/')[2]; 
+            const formData = $(this).serialize();
+
+            // Gửi dữ liệu bằng AJAX
+            $.ajax({
+                url: '/products/' + productid + '/review',
+                method: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        alert('Review submitted successfully');
+                        
+                        const newReview = `
+                            <div class="media mb-4">
+                                <img src="${response.data.avatar}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                <div class="media-body">
+                                    <h6>${response.data.username}<small> - <i>${response.data.createdat}</i></small></h6>
+                                    <div class="text-primary mb-2">
+                                        ${[...Array(5 - response.data.stars - 5 + 2 * response.data.stars)].map(() => '<i class="fas fa-star"></i>').join(' ')}
+                                        ${[...Array(5 - response.data.stars)].map(() => '<i class="far fa-star"></i>').join(' ')}
+                                    </div>
+                                    <p>${response.data.review}</p>
+                                </div>
+                            </div>
+                        `;
+
+                        $('#tab-pane-2 .col-md-6').find('.media').first().before(newReview);
+                    } else {
+                        alert('Failed to submit review');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting your review');
+                }
+            });
+        });
     });
 </script>
