@@ -85,6 +85,9 @@ router.get('/:id', async (req, res) => {
     const relatedProducts = await productsModel.findRelated(id, product.categoryid, 4)
     const reviews = await productsModel.findAllReviews(id);
     const reviews_count = reviews.length;
+    const user = req.user;
+    const average_star = reviews.reduce((total, cur) => total + cur.stars, 0) / reviews_count;
+    const rounded_average_star = Math.round(average_star);
 
     res.render('detail', {
         title: 'Shop Detail',
@@ -94,7 +97,40 @@ router.get('/:id', async (req, res) => {
         relatedProducts,
         reviews,
         reviews_count,
+        user,
+        average_star,
+        rounded_average_star
     });
+});
+
+router.post('/:id/review', async (req, res) => {
+    const userid = req.user.userid;
+    const productid = +req.params.id;
+    const { stars, review } = req.body;
+
+    try {
+        await productsModel.addReview(productid, userid, stars, review);
+        const formattedDate = new Date(Date.now() + 7 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric'
+        }).replace(/,/g, '');
+
+        res.json({
+            success: true,
+            data: {
+                stars,
+                review,
+                username: req.user.username,
+                avatar: req.user.avatar,
+                createdat: formattedDate
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false });
+    }
 });
 
 module.exports = router;

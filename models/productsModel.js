@@ -51,12 +51,18 @@ module.exports = {
     },
     async findAllReviews(id) {
         const result = await db.query(`
-            select r.*, u.firstname, u.lastname, u.avatar
+            select r.*, u.username, u.avatar
             from reviews r
             join users u
             on r.userid = u.userid 
-            where r.productid=${id}`
+            where r.productid=${id}
+            order by r.createdat desc, r.reviewid desc`
         );
         return result.rows;
+    },
+    async addReview(productid, userid, stars, review) {
+        const now = new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const result = await db.query(`insert into reviews(productid, userid, stars, review, createdat) values(${productid}, ${userid}, ${stars}, '${review}', '${now}')`);
+        return result;
     },
 }

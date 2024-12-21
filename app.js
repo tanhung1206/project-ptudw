@@ -6,6 +6,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const usersModel = require("./models/usersModel");
+const moment = require("moment");
 require('dotenv').config();
 
 const app = express();
@@ -50,6 +51,9 @@ app.engine('hbs', engine({
                 result.push(i);
             }
             return result;
+        },
+        formatDate: (date, format) => {
+            return moment(date).format(format);
         },
     }
 }));
