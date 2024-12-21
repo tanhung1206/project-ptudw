@@ -1,29 +1,47 @@
-# Hướng dẫn chạy ứng dụng ở local
+# Hướng dẫn chạy ứng dụng
 
-### Bước 1: Tạo Database
+## I. Cấu hình .env
 
-1. Mở pgAdmin và kết nối với PostgreSQL server.
-2. Tạo một database mới với tên `shop`.
-
-### Bước 2: Chạy lệnh SQL
-
-1. Chạy lệnh trong file `db.sql` để tạo bảng và dữ liệu trong database `shop`.
-
-### Bước 3: Set up .env
-
-1. Cập nhật cấu hình kết nối PostgreSQL:  
-    **Example**:<br>
-   DB_USER=postgres<br>
-   DB_HOST=localhost<br>
-   DB_DATABASE=shop<br>
-   DB_PASSWORD=your password<br>
+1. Cập nhật cấu hình kết nối PostgreSQL, ví dụ:
+   ```bash
+   DB_USER=postgres
+   DB_HOST=localhost
+   DB_DATABASE=shop
+   DB_PASSWORD=your_password
    DB_PORT=5432
-2. Chạy lệnh "node setupEnv.js" để cập nhật SESSION_SECRET
+   SSL_REJECT_UNAUTHORIZED=0 # 0 for development, 1 for production
+   ```
+2. Để cập nhật `SESSION_SECRET`, chạy lệnh:
 
-### Bước 4: Cài đặt thư viện:
+   ```
+   node setupEnv.js
+   ```
 
-- npm i
+## II. Tạo database
 
-### Bước 5: Run:
+1. Tải và cài đặt Docker từ [trang chủ Docker](https://www.docker.com/get-started).
 
-- npm start
+2. Khởi động Docker và đảm bảo Docker đang chạy.
+
+3. Chạy các lệnh sau để khởi động các dịch vụ và seed dữ liệu:
+
+   ```bash
+   docker-compose up -d # Khởi động các dịch vụ trong chế độ nền
+   node seed.js # Seed dữ liệu vào database
+   ```
+
+   Lưu ý: Sử dụng lệnh `docker-compose down` khi muốn dừng và xóa container của Docker.
+
+## III. Chạy ứng dụng
+
+1. Chạy lệnh sau để cài đặt các thư viện cần thiết:
+
+   ```
+   npm install
+   ```
+
+2. Chạy lệnh sau để khởi động ứng dụng:
+
+   ```
+   npm start
+   ```
