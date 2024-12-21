@@ -13,7 +13,7 @@ module.exports = {
         const result = await db.query(`select * from ${tableName} where categoryid=${id}`);
         return result.rows;
     },
-    async filterByCondition(condition, limit, offset,order="productid") {
+    async filterByCondition(condition, limit, offset, order = "productid") {
         let result;
         if (condition) {
             result = await db.query(`select * from ${tableName} where ${condition} order by ${order} limit ${limit} offset ${offset}`);
@@ -48,5 +48,15 @@ module.exports = {
     async findJustArrived(limit) {
         const result = await db.query(`select * from ${tableName} where createdat is not null order by createdat desc limit ${limit}`);
         return result.rows;
-    }
+    },
+    async findAllReviews(id) {
+        const result = await db.query(`
+            select r.*, u.firstname, u.lastname, u.avatar
+            from reviews r
+            join users u
+            on r.userid = u.userid 
+            where r.productid=${id}`
+        );
+        return result.rows;
+    },
 }

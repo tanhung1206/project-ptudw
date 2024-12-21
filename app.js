@@ -43,7 +43,14 @@ app.engine('hbs', engine({
         },
         inRange: function (value, a, b) {
             return value >= a && value <= b;
-        }
+        },
+        range: (start, end) => {
+            const result = [];
+            for (let i = start; i <= end; i++) {
+                result.push(i);
+            }
+            return result;
+        },
     }
 }));
 app.set('view engine', 'hbs');
@@ -114,19 +121,19 @@ app.use(async (req, res, next) => {
     // Đưa thông tin user vào res.locals để dùng trong views
     // res.locals.user = req.session.user || null;
     res.locals.user = req.user;
-    
-    if(req.isAuthenticated()){
+
+    if (req.isAuthenticated()) {
         const cartModel = require("./models/cartModel");
         const carts = await cartModel.findByUserId(req.user.userid);
         carts.forEach((item) => {
             item.totalPrice = item.quantity * item.price;
         })
-        const [totalPrices,totalQuantities] = carts.reduce((total, cur) => {
-            return [total[0]+cur.totalPrice,total[1]+cur.quantity];
-        }, [0,0]);
-        res.locals.carts=carts;
-        res.locals.totalPrices=totalPrices;
-        res.locals.totalQuantities=totalQuantities
+        const [totalPrices, totalQuantities] = carts.reduce((total, cur) => {
+            return [total[0] + cur.totalPrice, total[1] + cur.quantity];
+        }, [0, 0]);
+        res.locals.carts = carts;
+        res.locals.totalPrices = totalPrices;
+        res.locals.totalQuantities = totalQuantities
     }
     next();
 });
@@ -150,7 +157,7 @@ app.use('/user', usersRouter);
 // app.use('/register', registerRouter);
 app.use('/products', productsRouter);
 
-app.use("/api/products",require("./controllers/apiProducts"));
+app.use("/api/products", require("./controllers/apiProducts"));
 
 
 // Khởi động server

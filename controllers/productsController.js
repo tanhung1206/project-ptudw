@@ -83,13 +83,17 @@ router.get('/:id', async (req, res) => {
     const id = +req.params.id;
     const product = (await productsModel.findOne(id))[0]
     const relatedProducts = await productsModel.findRelated(id, product.categoryid, 4)
+    const reviews = await productsModel.findAllReviews(id);
+    const reviews_count = reviews.length;
 
     res.render('detail', {
         title: 'Shop Detail',
         message: 'Shop Detail',
         currentPage: 'shop',
         product,
-        relatedProducts
+        relatedProducts,
+        reviews,
+        reviews_count,
     });
 });
 

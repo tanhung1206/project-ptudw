@@ -3,7 +3,7 @@ const router = express.Router();
 const usersModel = require('../models/usersModel');
 const bcrypt = require('bcryptjs');
 const passport = require("passport");
-const { sendActivationEmail } = require('../services/emailService');
+// const { sendActivationEmail } = require('../services/emailService');
 
 // GET /login - Render the login page
 router.get('/login', (req, res) => {
@@ -36,8 +36,8 @@ router.post("/login", (req, res, next) => {
                     errorMessage: info,
                 });
             }
-            else{
-                req.logIn(user,(err)=>{
+            else {
+                req.logIn(user, (err) => {
                     return res.redirect('/');
                 });
             }
@@ -47,15 +47,15 @@ router.post("/login", (req, res, next) => {
 
 
 // GET /logout - Handle logout
-router.get("/logout",(req,res)=>{
-    req.logOut((err)=>{
+router.get("/logout", (req, res) => {
+    req.logOut((err) => {
         res.redirect('/user/login');
     })
 })
 
-router.get("/profile",require("../middlewares/restrict"),(req,res)=>{
-    res.render("profile",{
-        layout:"index-layout"
+router.get("/profile", require("../middlewares/restrict"), (req, res) => {
+    res.render("profile", {
+        layout: "index-layout"
     });
 })
 
@@ -78,7 +78,7 @@ router.post("/register", async (req, res) => {
         const { username, email, password, confirmPassword } = req.body;
 
         const usernameExists = (await usersModel.findByUserName(username))[0];
-        const emailExists = (await usersModel.findByEmail(email))[0];  
+        const emailExists = (await usersModel.findByEmail(email))[0];
 
         const errors = {
             usernameError: usernameExists ? "Username already exists" : "",
