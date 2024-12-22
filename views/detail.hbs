@@ -33,14 +33,14 @@
                     {{#each (range 1 this.average_star)}}
                     <i class="fas fa-star"></i>
                     {{/each}}
-                    {{#if (gte this.round_average_star this.average_star)}}
+                    {{#if (gte this.average_star this.rounded_average_star)}}
                     <i class="far fa-star"></i>
-                    {{#each (range 1 (subtract 4 this.average_star))}}
+                    {{#each (range 1 (subtract 4 this.rounded_average_star))}}
                     <i class="far fa-star"></i>
                     {{/each}}
                     {{else}}
                     <i class="fas fa-star-half-alt"></i>
-                    {{#each (range 1 (subtract 5 this.average_star))}}
+                    {{#each (range 1 (subtract 5 this.rounded_average_star))}}
                     <i class="far fa-star"></i>
                     {{/each}}
                     {{/if}}
@@ -171,6 +171,15 @@
                                 </div>
                             </div>
                             {{/each}}
+                            <div id="loading-spinner" class="text-center" style="display:none;">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <button id="load-more-btn" class="btn btn-primary" onclick="loadMoreReviews()">Load More
+                                    Reviews</button>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <h4 class="mb-4">Leave a review</h4>
@@ -311,7 +320,7 @@
                 return;
             }
 
-            const productid = window.location.pathname.split('/')[2]; 
+            const productid = window.location.pathname.split('/')[2];
             const formData = $(this).serialize();
 
             // Gửi dữ liệu bằng AJAX
@@ -321,8 +330,6 @@
                 data: formData,
                 success: function (response) {
                     if (response.success) {
-                        alert('Review submitted successfully');
-                        
                         const newReview = `
                             <div class="media mb-4">
                                 <img src="${response.data.avatar}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
@@ -338,6 +345,39 @@
                         `;
 
                         $('#tab-pane-2 .col-md-6').find('.media').first().before(newReview);
+                        const old_reviews_count = parseInt($('small.pt-1').text().match(/\d+/)[0]);
+                        $('small.pt-1').text(`(${old_reviews_count + 1} Reviews)`);
+                        $('a.nav-item.nav-link[href="#tab-pane-2"]').text(`Reviews (${old_reviews_count + 1})`);
+
+                        var starsHtml = '';
+                        console.log(response.data.average_star);
+                        console.log(Math.floor(response.data.average_star));
+                        console.log(response.data.rounded_average_star);
+                        for (let i = 0; i < Math.floor(response.data.average_star); i++) {
+                            starsHtml += '<i class="fas fa-star"></i> ';
+                        }
+                        if (response.data.average_star >= response.data.rounded_average_star) {
+                            for (let i = 0; i < 5 - response.data.rounded_average_star; i++) {
+                                starsHtml += '<i class="far fa-star"></i> ';
+                            }
+                        } else {
+                            starsHtml += '<i class="fas fa-star-half-alt"></i> ';
+                            for (let i = 0; i < 5 - response.data.rounded_average_star; i++) {
+                                starsHtml += '<i class="far fa-star"></i> ';
+                            }
+                        }
+
+                        $('.d-flex .text-primary').html(starsHtml);
+
+                        alert('Review submitted successfully');
+
+                        // Reset form
+                        $('#review-form').trigger('reset');
+                        $('#rating-value').val('');
+                        document.querySelectorAll('.star-rating .star').forEach(s => {
+                            s.style.color = 'gray';
+                        });
+
                     } else {
                         alert('Failed to submit review');
                     }
@@ -349,4 +389,69 @@
             });
         });
     });
+
+    // Load more reviews
+    let page = 1;
+    let loading = false;
+
+    function loadMoreReviews() {
+        if (loading) {
+            return;
+        }
+
+        loading = true;
+        $('#loading-spinner').show();
+
+        const productid = window.location.pathname.split('/')[2];
+        $.ajax({
+            url: '/products/' + productid + '/?page=' + page,
+            method: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    if (response.data.length === 0) {
+                        $('#load-more-btn').disabled = true;
+                        $('#load-more-btn').text('No more reviews');
+                        $('#load-more-btn').removeClass('btn-primary');
+                        $('#loading-spinner').hide();
+                        return;
+                    }
+
+                    response.data.forEach(review => {
+                        const formatDate = new Date(review.createdat).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        }).replace(/,/g, '');
+
+                        const newReview = `
+                            <div class="media mb-4">
+                                <img src="${review.avatar}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                <div class="media-body">
+                                    <h6>${review.username}<small> - <i>${formatDate}</i></small></h6>
+                                    <div class="text-primary mb-2">
+                                        ${[...Array(5 - review.stars - 5 + 2 * review.stars)].map(() => '<i class="fas fa-star"></i>').join(' ')}
+                                        ${[...Array(5 - review.stars)].map(() => '<i class="far fa-star"></i>').join(' ')}
+                                    </div>
+                                    <p>${review.review}</p>
+                                </div>
+                            </div>
+                        `;
+                        $('#tab-pane-2 .col-md-6').find('.media').last().after(newReview);
+                    });
+
+                    page++;
+                    loading = false;
+                    $('#loading-spinner').hide();
+                } else {
+                    console.error('Failed to load more reviews');
+                    alert('Failed to load more reviews');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while loading more reviews');
+            }
+        });
+    }
 </script>
