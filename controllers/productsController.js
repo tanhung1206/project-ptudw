@@ -80,32 +80,47 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-    const id = +req.params.id;
-    const product = (await productsModel.findOne(id))[0]
-    const relatedProducts = await productsModel.findRelated(id, product.categoryid, 4)
-    const reviews = await productsModel.findAllReviews(id);
-    const reviews_count = reviews.length;
-    const user = req.user;
-    const average_star = reviews.reduce((total, cur) => total + cur.stars, 0) / reviews_count;
-    const rounded_average_star = Math.round(average_star);
+    const page = +req.query.page || 0;
+    const page_size = 2;
 
-    res.render('detail', {
-        title: 'Shop Detail',
-        message: 'Shop Detail',
-        currentPage: 'shop',
-        product,
-        relatedProducts,
-        reviews,
-        reviews_count,
-        user,
-        average_star,
-        rounded_average_star
-    });
+    if (page < 1) {
+        const id = +req.params.id;
+        const product = (await productsModel.findOne(id))[0];
+        const relatedProducts = await productsModel.findRelated(id, product.categoryid, 4);
+
+        const user = req.user;
+        const reviews_count = (await productsModel.countReviews(id))[0].total;
+        const average_star = parseFloat((await productsModel.averageStar(id))[0].average).toFixed(1);
+        const rounded_average_star = Math.round(average_star);
+        const reviews = await productsModel.findReviewPage(id, page_size, 0);
+
+        res.render('detail', {
+            title: 'Shop Detail',
+            message: 'Shop Detail',
+            currentPage: 'shop',
+            product,
+            relatedProducts,
+            reviews,
+            reviews_count,
+            user,
+            average_star,
+            rounded_average_star
+        });
+    } else {
+        const id = +req.params.id;
+        const reviews = await productsModel.findReviewPage(id, page_size, page_size * page);;
+
+        res.json({
+            success: true,
+            data: reviews
+        });
+    }
 });
 
 router.post('/:id/review', async (req, res) => {
     const userid = req.user.userid;
     const productid = +req.params.id;
+    const id = +req.params.id;
     const { stars, review } = req.body;
 
     try {
@@ -117,6 +132,9 @@ router.post('/:id/review', async (req, res) => {
             year: 'numeric'
         }).replace(/,/g, '');
 
+        const average_star = parseFloat((await productsModel.averageStar(id))[0].average).toFixed(1);
+        const rounded_average_star = Math.round(average_star);
+
         res.json({
             success: true,
             data: {
@@ -124,7 +142,9 @@ router.post('/:id/review', async (req, res) => {
                 review,
                 username: req.user.username,
                 avatar: req.user.avatar,
-                createdat: formattedDate
+                createdat: formattedDate,
+                average_star: average_star,
+                rounded_average_star,
             }
         });
     } catch (error) {

@@ -65,4 +65,24 @@ module.exports = {
         const result = await db.query(`insert into reviews(productid, userid, stars, review, createdat) values(${productid}, ${userid}, ${stars}, '${review}', '${now}')`);
         return result;
     },
+    async findReviewPage(id, limit, offset) {
+        const result = await db.query(`
+            select r.*, u.username, u.avatar
+            from reviews r
+            join users u
+            on r.userid = u.userid 
+            where r.productid=${id}
+            order by r.createdat desc, r.reviewid desc
+            limit ${limit} offset ${offset}`
+        );
+        return result.rows;
+    },
+    async countReviews(id) {
+        const result = await db.query(`select count(*) as total from reviews where productid=${id}`);
+        return result.rows;
+    },
+    async averageStar(id) {
+        const result = await db.query(`select avg(stars) as average from reviews where productid=${id}`);
+        return result.rows;
+    }
 }

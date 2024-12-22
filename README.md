@@ -9,7 +9,6 @@
    DB_DATABASE=shop
    DB_PASSWORD=your_password
    DB_PORT=5432
-   SSL_REJECT_UNAUTHORIZED=0 # 0 for development, 1 for production
    ```
 2. Để cập nhật `SESSION_SECRET`, chạy lệnh:
 
