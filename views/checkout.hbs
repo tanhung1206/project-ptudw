@@ -27,20 +27,18 @@
                     </div>
                     <div class="col-md-6 form-group">
                         <label>Address Line 2</label>
-                        <input class="form-control" type="text" placeholder="123 Street">
+                        <input class="form-control" type="text" placeholder="Apartment 4B">
                     </div>
                     <div class="col-md-6 form-group">
                         <label>Country</label>
                         <select class="custom-select">
                             <option selected>United States</option>
-                            <option>Afghanistan</option>
-                            <option>Albania</option>
-                            <option>Algeria</option>
+                            <option>Vietnam</option>
                         </select>
                     </div>
                     <div class="col-md-6 form-group">
                         <label>City</label>
-                        <input class="form-control" type="text" placeholder="New York">
+                        <input class="form-control" type="text" placeholder="New York City">
                     </div>
                     <div class="col-md-6 form-group">
                         <label>State</label>
@@ -50,13 +48,13 @@
                         <label>ZIP Code</label>
                         <input class="form-control" type="text" placeholder="123">
                     </div>
-                    <div class="col-md-12 form-group">
+                    <div class="col-md-12 form-group d-none">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="newaccount">
                             <label class="custom-control-label" for="newaccount">Create an account</label>
                         </div>
                     </div>
-                    <div class="col-md-12 form-group">
+                    <div class="col-md-12 form-group d-none">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="shipto">
                             <label class="custom-control-label" for="shipto" data-toggle="collapse"
@@ -128,7 +126,7 @@
                         <p>{{name}}</p>
                         <p>${{totalPrice}}</p>
                     </div>
-                   {{/each}}
+                    {{/each}}
                     <hr class="mt-0">
                     <div class="d-flex justify-content-between mb-3 pt-1">
                         <h6 class="font-weight-medium">Subtotal</h6>
@@ -178,3 +176,66 @@
     </div>
 </div>
 <!-- Checkout End -->
+
+<script>
+    document.querySelector('.btn-primary').addEventListener('click', function () {
+        if (!validateForm()) {
+            return;
+        }
+        placeOrder();
+        completeOrder();
+    });
+
+    function completeOrder() {
+        // delete all page and replace with a thank you message
+        document.querySelector('.container-fluid.pt-5').innerHTML = '<div class="container text-center"><h1>Thank you for your order!</h1><p>Your order has been placed successfully.</p></div>';
+    }
+
+    function validateForm() {
+        const fields = [
+            'input[placeholder="John"]',
+            'input[placeholder="Doe"]',
+            'input[placeholder="example@email.com"]',
+            'input[placeholder="+123 456 789"]',
+            'input[placeholder="123 Street"]',
+            'input[placeholder="Apartment 4B"]',
+            'select.custom-select',
+            'input[placeholder="New York City"]',
+            'input[placeholder="New York"]',
+            'input[placeholder="123"]'
+        ];
+
+        for (const field of fields) {
+            if (document.querySelector(field).value === '') {
+                alert('Please fill in all fields');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function placeOrder() {
+        const data = {
+            fullname: `${document.querySelector('input[placeholder="John"]').value} ${document.querySelector('input[placeholder="Doe"]').value}`,
+            email: document.querySelector('input[placeholder="example@email.com"]').value,
+            phone: document.querySelector('input[placeholder="+123 456 789"]').value,
+            address: `${document.querySelector('select.custom-select').value}, ${document.querySelector('input[placeholder="New York"]').value}, ${document.querySelector('input[placeholder="New York City"]').value}, ${document.querySelector('input[placeholder="123 Street"]').value}, ${document.querySelector('input[placeholder="Apartment 4B"]').value}`,
+            zip: document.querySelector('input[placeholder="123"]').value,
+            total: document.querySelector('.card-footer .font-weight-bold:last-child').textContent.slice(1)
+        };
+
+        console.log(data);
+
+        fetch('/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    };
+
+</script>

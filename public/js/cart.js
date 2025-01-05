@@ -55,7 +55,7 @@ function updateCartItem(productid, quantity) {
         type: "PUT",
         data: { productid, quantity },
         success: function (result) {
-           
+
         }
     })
 }
