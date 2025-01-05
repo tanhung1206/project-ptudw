@@ -151,6 +151,7 @@ const indexRouter = require('./controllers/indexController');
 const usersRouter = require('./controllers/usersController');
 // const registerRouter = require('./controllers/registerController');
 const productsRouter = require('./controllers/productsController');
+const ordersRouter = require('./controllers/ordersController');
 
 app.use('/', indexRouter);
 app.use('/about', aboutRouter);
@@ -160,6 +161,7 @@ app.use('/contact', contactRouter);
 app.use('/user', usersRouter);
 // app.use('/register', registerRouter);
 app.use('/products', productsRouter);
+app.use('/orders', require("./middlewares/restrict"), ordersRouter);
 
 app.use("/api/products", require("./controllers/apiProducts"));
 
