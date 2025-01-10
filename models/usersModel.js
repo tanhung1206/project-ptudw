@@ -67,7 +67,7 @@ module.exports = {
       );
       return result.rows[0]?.userId;
     } catch (error) {
-      console.error("Database Error in createGoogleUser:", error);
+      console.error("Database Error in createGoogleUser:", error.message);
       throw error;
     }
   },
