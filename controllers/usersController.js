@@ -223,6 +223,7 @@ router.get(
   }),
   (req, res) => {
     if (!req.user) {
+      console.error("Google login failed: No user returned from Passport.");
       return res.redirect("/user/login?error=Google login failed.");
     }
     res.redirect("/");

@@ -140,6 +140,57 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Cấu hình Google Strategy
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL: process.env.GOOGLE_CALLBACK_URL,
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//       try {
+//         const email = profile.emails[0].value;
+
+//         // Kiểm tra xem email đã tồn tại trong hệ thống chưa
+//         const user = (await usersModel.findByEmail(email))[0];
+
+//         if (user) {
+//           // Đăng nhập Google nếu tài khoản đã tồn tại và được đăng ký qua Google
+//           if (user.authProvider === "google") {
+//             return done(null, user);
+//           }
+
+//           // Nếu tài khoản là local, yêu cầu người dùng đăng nhập qua mật khẩu
+//           return done(null, false, {
+//             message:
+//               "Your email is registered as a standard account. Please log in with your password.",
+//           });
+//         } else {
+//           // Tạo tài khoản mới qua Google
+//           const newUser = {
+//             username: profile.displayName || `user_${Date.now()}`,
+//             email,
+//             avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
+//           };
+
+//           console.log("Creating user with data:", newUser);
+//           const userId = await usersModel.createGoogleUser(newUser);
+
+//           if (!userId) {
+//             throw new Error("Failed to create a new user via Google OAuth.");
+//           }
+
+//           const createdUser = (await usersModel.findById(userId))[0];
+//           return done(null, createdUser);
+//         }
+//       } catch (error) {
+//         console.error("Google OAuth Error:", error);
+//         return done(error, null);
+//       }
+//     }
+//   )
+// );
+
 passport.use(
   new GoogleStrategy(
     {
@@ -149,40 +200,51 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails[0].value;
+        console.log("Google Profile:", profile);
 
-        // Kiểm tra xem email đã tồn tại trong hệ thống chưa
-        const user = (await usersModel.findByEmail(email))[0];
-
-        if (user) {
-          // Đăng nhập Google nếu tài khoản đã tồn tại và được đăng ký qua Google
-          if (user.authProvider === "google") {
-            return done(null, user);
-          }
-
-          // Nếu tài khoản là local, yêu cầu người dùng đăng nhập qua mật khẩu
+        const email = profile.emails?.[0]?.value;
+        if (!email) {
+          console.error("Google profile does not have an email.");
           return done(null, false, {
-            message:
-              "Your email is registered as a standard account. Please log in with your password.",
+            message: "Google profile missing email.",
           });
-        } else {
-          // Tạo tài khoản mới qua Google
-          const newUser = {
-            username: profile.displayName || `user_${Date.now()}`,
-            email,
-            avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
-          };
+        }
 
-          console.log("Creating user with data:", newUser);
-          const userId = await usersModel.createGoogleUser(newUser);
+        // Kiểm tra xem email đã tồn tại hay chưa
+        const existingUser = (await usersModel.findByEmail(email))[0];
+        if (existingUser) {
+          console.log("Existing user found:", existingUser);
 
-          if (!userId) {
-            throw new Error("Failed to create a new user via Google OAuth.");
+          // Nếu tài khoản đã tồn tại nhưng không phải Google OAuth
+          if (existingUser.authProvider !== "google") {
+            return done(null, false, {
+              message:
+                "Your email is registered as a standard account. Please log in with your password.",
+            });
           }
 
-          const createdUser = (await usersModel.findById(userId))[0];
-          return done(null, createdUser);
+          // Nếu tài khoản là Google OAuth
+          return done(null, existingUser);
         }
+
+        // Nếu không tồn tại, tạo tài khoản mới
+        const newUser = {
+          username: profile.displayName || `user_${Date.now()}`,
+          email,
+          avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
+        };
+
+        console.log("Creating new Google user:", newUser);
+        const userId = await usersModel.createGoogleUser(newUser);
+
+        if (!userId) {
+          console.error("Failed to create Google user.");
+          throw new Error("Failed to create a new user via Google OAuth.");
+        }
+
+        const createdUser = (await usersModel.findById(userId))[0];
+        console.log("New user created:", createdUser);
+        return done(null, createdUser);
       } catch (error) {
         console.error("Google OAuth Error:", error);
         return done(error, null);
