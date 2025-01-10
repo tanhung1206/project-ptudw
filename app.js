@@ -71,7 +71,7 @@ app.use(
     resave: false, // Không lưu lại session nếu không có thay đổi
     saveUninitialized: false, // Không lưu session chưa được khởi tạo
     cookie: {
-      secure: false, // Bật true nếu sử dụng HTTPS
+      secure: true, // Bật true nếu sử dụng HTTPS
       maxAge: 1000 * 60 * 60 * 24, // Thời gian sống của cookie: 1 ngày
     },
   })
