@@ -31,7 +31,7 @@ module.exports = {
   async createGoogleUser({ username, email, avatar }) {
     const result = await db.query(
       `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
-     VALUES ($1, $2, 'google_oauth', $3, TRUE, 'google') RETURNING userId`,
+     VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
       [username, email, avatar]
     );
     return result.rows[0]?.userId;
