@@ -28,15 +28,6 @@ module.exports = {
     return result.rowCount;
   },
 
-  async createGoogleUser({ username, email, avatar }) {
-    const result = await db.query(
-      `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
-     VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
-      [username, email, avatar]
-    );
-    return result.rows[0]?.userId;
-  },
-
   async insertUser(
     username,
     password,
@@ -57,5 +48,27 @@ module.exports = {
       ]
     );
     return result.rows[0]?.userId;
+  },
+
+  async createGoogleUser({ username, email, avatar }) {
+    const existingUser = (await this.findByEmail(email))[0];
+    if (existingUser) {
+      console.error("Email already exists:", email);
+      throw new Error(
+        `Email ${email} is already associated with another account.`
+      );
+    }
+
+    try {
+      const result = await db.query(
+        `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
+       VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
+        [username, email, avatar]
+      );
+      return result.rows[0]?.userId;
+    } catch (error) {
+      console.error("Database Error in createGoogleUser:", error);
+      throw error;
+    }
   },
 };

@@ -173,6 +173,7 @@ passport.use(
             avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
           };
 
+          console.log("Creating user with data:", newUser);
           const userId = await usersModel.createGoogleUser(newUser);
 
           if (!userId) {
