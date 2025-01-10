@@ -47,7 +47,7 @@ module.exports = {
     const result = await db.query(
       `INSERT INTO Users (username, email, avatar, isActivated, authProvider)
      VALUES ($1, $2, $3, $4, $5) RETURNING userId`,
-      [username, email, avatar, isActivated, authProvider]
+      [username, email, "google_oauth", avatar, isActivated, authProvider]
     );
     return result.rows[0]?.userId;
   },
