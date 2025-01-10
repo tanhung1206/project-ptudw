@@ -4,7 +4,6 @@ const usersModel = require("../models/usersModel");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const { sendActivationEmail } = require("../services/emailService");
-// const { sendActivationEmail } = require('../services/emailService');
 
 // GET /login - Render the login page
 router.get("/login", (req, res) => {
@@ -199,4 +198,19 @@ router.get("/check-availability", async (req, res) => {
   }
 });
 
+// Route bắt đầu quá trình Google OAuth
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+// Route callback từ Google
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/user/login" }),
+  (req, res) => {
+    // Redirect sau khi đăng nhập thành công
+    res.redirect("/");
+  }
+);
 module.exports = router;

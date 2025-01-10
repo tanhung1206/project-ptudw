@@ -7,6 +7,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const usersModel = require("./models/usersModel");
 const moment = require("moment");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
 
 const app = express();
@@ -138,6 +139,47 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+// Cấu hình Google Strategy
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails[0].value;
+
+      try {
+        const user = await usersModel.findByEmail(email);
+
+        if (user) {
+          if (user.authProvider === "google") {
+            return done(null, user); // Đăng nhập Google bình thường
+          } else if (!user.isActivated) {
+            return done(null, false, {
+              message:
+                "This email is registered with a standard account. Please activate it to continue.",
+            });
+          } else {
+            return done(null, user); // Tài khoản thường đã kích hoạt
+          }
+        } else {
+          // Tạo tài khoản mới cho đăng nhập Google
+          const newUser = await usersModel.createGoogleUser(
+            profile.displayName,
+            email,
+            profile.photos[0].value
+          );
+          return done(null, newUser);
+        }
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
+
 // Middleware toàn cục: Cung cấp danh sách categories và thông tin user
 app.use(async (req, res, next) => {
   const categoriyModel = require("./models/categoriesModel");
@@ -177,12 +219,14 @@ const usersRouter = require("./controllers/usersController");
 // const registerRouter = require('./controllers/registerController');
 const productsRouter = require("./controllers/productsController");
 const ordersRouter = require("./controllers/ordersController");
+const authRouter = require("./controllers/usersController");
 
 app.use("/", indexRouter);
 app.use("/about", aboutRouter);
 app.use("/cart", require("./middlewares/restrict"), cartRouter);
 app.use("/checkout", require("./middlewares/restrict"), checkoutRouter);
 app.use("/contact", contactRouter);
+app.use("/auth", authRouter);
 app.use("/user", usersRouter);
 // app.use('/register', registerRouter);
 app.use("/products", productsRouter);
