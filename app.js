@@ -149,33 +149,40 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails[0].value;
+        const email = profile.emails?.[0]?.value;
+        if (!email) {
+          return done(null, false, {
+            message: "Google account does not have an email address.",
+          });
+        }
 
         // Kiểm tra xem email đã tồn tại trong hệ thống chưa
         const user = (await usersModel.findByEmail(email))[0];
 
         if (user) {
-          // Đăng nhập Google bình thường nếu tài khoản đã tồn tại
-          if (user.authProvider === "google") {
-            return done(null, user);
-          }
-
-          // Nếu tài khoản thường, yêu cầu kích hoạt hoặc đăng nhập với mật khẩu
-          if (!user.isActivated) {
+          // Nếu tài khoản không phải từ Google
+          if (user.authProvider !== "google") {
             return done(null, false, {
               message:
-                "Your account is registered as a standard account. Please activate your account to proceed.",
+                "This email is already registered with another provider. Please log in using your original method.",
             });
           }
-
+          // Đăng nhập Google bình thường nếu tài khoản đã tồn tại
           return done(null, user);
         } else {
           // Tạo tài khoản mới qua Google
+          const username =
+            profile.displayName?.replace(/\s+/g, "_") ||
+            `user_${Math.random().toString(36).substring(2, 10)}`;
+          const avatar = profile.photos?.[0]?.value?.startsWith("http")
+            ? profile.photos[0].value
+            : "/img/default-avatar.png";
+
           const newUser = {
-            username: profile.displayName || `user_${Date.now()}`,
-            email: email,
+            username,
+            email,
             password: null, // Không có mật khẩu
-            avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
+            avatar,
             isActivated: true,
             authProvider: "google",
           };
@@ -183,6 +190,10 @@ passport.use(
           const userId = await usersModel.createGoogleUser(newUser);
 
           if (!userId) {
+            console.error(
+              "Google OAuth Error: Failed to create user for email:",
+              email
+            );
             throw new Error("Failed to create a new user via Google OAuth.");
           }
 

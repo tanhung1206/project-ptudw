@@ -35,7 +35,8 @@ CREATE TABLE Users (
     isAdmin BOOLEAN DEFAULT FALSE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     isBan BOOLEAN DEFAULT FALSE,
-    isActivated BOOLEAN DEFAULT FALSE
+    isActivated BOOLEAN DEFAULT FALSE,
+    authProvider VARCHAR(50)
 );
 
 -- Tạo bảng Products
