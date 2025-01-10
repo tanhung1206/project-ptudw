@@ -19,15 +19,6 @@ module.exports = {
     );
     return result.rows;
   },
-  async insertUser(username, password, email) {
-    const result = await db.query(
-      `insert into users (username, password, email, avatar)
-             values ($1, $2, $3, $4) RETURNING userid`,
-      [username, password, email, "/img/default-avatar.png"]
-    );
-    //return result.rowCount;
-    return result.rows[0]?.userid;
-  },
 
   async activateUser(userId) {
     const result = await db.query(
@@ -37,25 +28,33 @@ module.exports = {
     return result.rowCount;
   },
 
-  async createGoogleUser({
-    username,
-    email,
-    avatar,
-    isActivated,
-    authProvider,
-  }) {
-    console.log("Creating Google User with values:", {
-      username,
-      email,
-      password: "google_oauth",
-      avatar,
-      isActivated,
-      authProvider,
-    });
+  async createGoogleUser({ username, email, avatar }) {
     const result = await db.query(
-      `INSERT INTO Users (username, email, password, avatar, isActivated, authProvider)
+      `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
+     VALUES ($1, $2, 'google_oauth', $3, TRUE, 'google') RETURNING userId`,
+      [username, email, avatar]
+    );
+    return result.rows[0]?.userId;
+  },
+
+  async insertUser(
+    username,
+    password,
+    email,
+    isActivated = false,
+    authProvider = "local"
+  ) {
+    const result = await db.query(
+      `INSERT INTO Users (username, password, email, avatar, isActivated, authProvider)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING userId`,
-      [username, email, "google_oauth", avatar, isActivated, authProvider]
+      [
+        username,
+        password,
+        email,
+        "/img/default-avatar.png",
+        isActivated,
+        authProvider,
+      ]
     );
     return result.rows[0]?.userId;
   },

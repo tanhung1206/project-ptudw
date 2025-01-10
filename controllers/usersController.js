@@ -74,6 +74,16 @@ router.post("/register", async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
 
+    if (!username || username.length < 3) {
+      return res.render("register", {
+        title: "Register",
+        message: "Register",
+        usernameError: "Username must be at least 3 characters long.",
+        currentPage: "register",
+        success: false,
+      });
+    }
+
     const usernameExists = (await usersModel.findByUserName(username))[0];
     const emailExists = (await usersModel.findByEmail(email))[0];
 
@@ -98,7 +108,13 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 8);
-    const userId = await usersModel.insertUser(username, hashedPassword, email);
+    const userId = await usersModel.insertUser(
+      username,
+      hashedPassword,
+      email,
+      false, // isActivated
+      "local" // authProvider
+    );
 
     if (!userId) {
       console.error("Insert User Failed: No userId returned.");
@@ -141,38 +157,33 @@ router.post("/register", async (req, res) => {
 router.get("/activate/:token", async (req, res) => {
   try {
     const token = req.params.token;
-    const [userId, email] = Buffer.from(token, "base64")
-      .toString("ascii")
-      .split(":");
+    if (!token) {
+      return res.status(400).send("Invalid activation token.");
+    }
 
-    // Kích hoạt tài khoản
-    const rowsAffected = await usersModel.activateUser(userId);
+    const decodedToken = Buffer.from(token, "base64").toString("ascii");
+    const [userId, email] = decodedToken.split(":");
 
-    if (rowsAffected === 0) {
-      console.log(`Activation failed for userId: ${userId}, email: ${email}`);
+    if (!userId || !email) {
+      return res.status(400).send("Invalid activation token.");
+    }
+
+    // Kiểm tra userId và email tồn tại
+    const user = await usersModel.findById(userId);
+    if (!user || user[0].email !== email) {
       return res.status(400).send("Invalid or expired activation link.");
     }
 
-    // Lấy username sau khi kích hoạt
-    const user = (await usersModel.findById(userId))[0];
-    if (user) {
-      console.log(
-        `Account activated successfully for userId: ${userId}, email: ${email}, username: ${user.username}`
-      );
-    } else {
-      console.log(
-        `Account activated but failed to retrieve user details for userId: ${userId}`
-      );
+    // Kích hoạt tài khoản
+    const rowsAffected = await usersModel.activateUser(userId);
+    if (rowsAffected === 0) {
+      return res.status(400).send("Activation failed.");
     }
 
     res.redirect("/user/login?success=Account activated successfully!");
   } catch (error) {
     console.error("Activation Error:", error);
-    res
-      .status(500)
-      .send(
-        "An error occurred while activating your account. Please try again later."
-      );
+    res.status(500).send("An error occurred. Please try again later.");
   }
 });
 
@@ -211,6 +222,9 @@ router.get(
     failureRedirect: "/user/login?error=Unable to login with Google.",
   }),
   (req, res) => {
+    if (!req.user) {
+      return res.redirect("/user/login?error=Google login failed.");
+    }
     res.redirect("/");
   }
 );

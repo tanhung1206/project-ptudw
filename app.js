@@ -149,51 +149,33 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails?.[0]?.value;
-        if (!email) {
-          return done(null, false, {
-            message: "Google account does not have an email address.",
-          });
-        }
+        const email = profile.emails[0].value;
 
         // Kiểm tra xem email đã tồn tại trong hệ thống chưa
         const user = (await usersModel.findByEmail(email))[0];
 
         if (user) {
-          // Nếu tài khoản không phải từ Google
-          if (user.authProvider !== "google") {
-            return done(null, false, {
-              message:
-                "This email is already registered with another provider. Please log in using your original method.",
-            });
+          // Đăng nhập Google nếu tài khoản đã tồn tại và được đăng ký qua Google
+          if (user.authProvider === "google") {
+            return done(null, user);
           }
-          // Đăng nhập Google bình thường nếu tài khoản đã tồn tại
-          return done(null, user);
+
+          // Nếu tài khoản là local, yêu cầu người dùng đăng nhập qua mật khẩu
+          return done(null, false, {
+            message:
+              "Your email is registered as a standard account. Please log in with your password.",
+          });
         } else {
           // Tạo tài khoản mới qua Google
-          const username =
-            profile.displayName?.replace(/\s+/g, "_") ||
-            `user_${Math.random().toString(36).substring(2, 10)}`;
-          const avatar = profile.photos?.[0]?.value?.startsWith("http")
-            ? profile.photos[0].value
-            : "/img/default-avatar.png";
-
           const newUser = {
-            username,
+            username: profile.displayName || `user_${Date.now()}`,
             email,
-            password: null, // Không có mật khẩu
-            avatar,
-            isActivated: true,
-            authProvider: "google",
+            avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
           };
 
           const userId = await usersModel.createGoogleUser(newUser);
 
           if (!userId) {
-            console.error(
-              "Google OAuth Error: Failed to create user for email:",
-              email
-            );
             throw new Error("Failed to create a new user via Google OAuth.");
           }
 
