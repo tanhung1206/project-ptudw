@@ -44,6 +44,14 @@ module.exports = {
     isActivated,
     authProvider,
   }) {
+    console.log("Creating Google User with values:", {
+      username,
+      email,
+      password: "google_oauth",
+      avatar,
+      isActivated,
+      authProvider,
+    });
     const result = await db.query(
       `INSERT INTO Users (username, email, password, avatar, isActivated, authProvider)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING userId`,
