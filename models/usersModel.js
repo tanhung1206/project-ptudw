@@ -14,7 +14,16 @@ module.exports = {
         return result.rows;
     },
     async insertUser(username, password, email) {
-        const result = db.query(`insert into users (username, password, email, avatar) values ($1, $2, $3, $4)`, [username, password, email, '/img/default-avatar.png']);
-        return result.rowCount;
+        const result = await db.query(`insert into users (username, password, email, avatar)
+             values ($1, $2, $3, $4) RETURNING userid` 
+             , [username, password, email, '/img/default-avatar.png']);
+        //return result.rowCount;
+        return result.rows[0]?.userid;
+    },
+    
+    async activateUser(userId) {
+    const result = await db.query(`UPDATE Users SET isActivated = TRUE WHERE userId = $1`, [userId]);
+    return result.rowCount;
     }
+
 }

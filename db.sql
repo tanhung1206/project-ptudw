@@ -34,7 +34,8 @@ CREATE TABLE Users (
     avatar VARCHAR(255) DEFAULT '/img/default-avatar.png',
     isAdmin BOOLEAN DEFAULT FALSE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isBan BOOLEAN DEFAULT FALSE
+    isBan BOOLEAN DEFAULT FALSE,
+    isActivated BOOLEAN DEFAULT FALSE
 );
 
 -- Tạo bảng Products
