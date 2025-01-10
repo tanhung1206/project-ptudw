@@ -207,10 +207,12 @@ router.get(
 // Route callback từ Google
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/user/login" }),
+  passport.authenticate("google", {
+    failureRedirect: "/user/login?error=Unable to login with Google.",
+  }),
   (req, res) => {
-    // Redirect sau khi đăng nhập thành công
     res.redirect("/");
   }
 );
+
 module.exports = router;

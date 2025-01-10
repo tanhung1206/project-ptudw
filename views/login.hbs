@@ -57,6 +57,13 @@
                     <a href="/forgot-password">Forgot Password?</a>
                 </div>
 
+                <!-- Google Login Error -->
+                {{#if errorMessage}}
+                <div class="alert alert-danger" role="alert">
+                    {{errorMessage}}
+                </div>
+                {{/if}}
+                
                 <!-- Social Login -->
                 <div class="text-center mt-3">
                     <a href="/auth/google" class="btn btn-outline-primary">
