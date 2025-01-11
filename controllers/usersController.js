@@ -210,6 +210,7 @@ router.get("/check-availability", async (req, res) => {
 });
 
 // Route bắt đầu quá trình Google OAuth
+// Route bắt đầu quá trình Google OAuth
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -222,11 +223,15 @@ router.get(
     failureRedirect: "/user/login?error=Unable to login with Google.",
   }),
   (req, res) => {
-    if (!req.user) {
-      console.error("Google login failed: No user returned from Passport.");
-      return res.redirect("/user/login?error=Google login failed.");
+    try {
+      if (!req.user) {
+        throw new Error("Google login failed: No user returned from Passport.");
+      }
+      res.redirect("/");
+    } catch (error) {
+      console.error(error.message);
+      res.redirect(`/user/login?error=${encodeURIComponent(error.message)}`);
     }
-    res.redirect("/");
   }
 );
 

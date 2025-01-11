@@ -35,40 +35,54 @@ module.exports = {
     isActivated = false,
     authProvider = "local"
   ) {
-    const result = await db.query(
-      `INSERT INTO Users (username, password, email, avatar, isActivated, authProvider)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING userId`,
-      [
-        username,
-        password,
-        email,
-        "/img/default-avatar.png",
-        isActivated,
-        authProvider,
-      ]
-    );
-    return result.rows[0]?.userId;
+    try {
+      const result = await db.query(
+        `INSERT INTO Users (username, password, email, avatar, isActivated, authProvider)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING userId`,
+        [
+          username,
+          password,
+          email,
+          "/img/default-avatar.png",
+          isActivated,
+          authProvider,
+        ]
+      );
+
+      if (!result.rows[0]?.userId) {
+        throw new Error("Failed to insert user: No userId returned.");
+      }
+
+      return result.rows[0].userId;
+    } catch (error) {
+      console.error("Database Error in insertUser:", error.message);
+      throw new Error(`Database Error in insertUser: ${error.message}`);
+    }
   },
 
   async createGoogleUser({ username, email, avatar }) {
-    const existingUser = (await this.findByEmail(email))[0];
-    if (existingUser) {
-      console.error("Email already exists:", email);
-      throw new Error(
-        `Email ${email} is already associated with another account.`
-      );
-    }
-
     try {
+      const existingUser = (await this.findByEmail(email))[0];
+      if (existingUser) {
+        throw new Error(
+          `Email ${email} is already associated with another account.`
+        );
+      }
+
       const result = await db.query(
         `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
        VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
         [username, email, avatar]
       );
-      return result.rows[0]?.userId;
+
+      if (!result.rows[0]?.userId) {
+        throw new Error("Failed to create Google user: No userId returned.");
+      }
+
+      return result.rows[0].userId;
     } catch (error) {
       console.error("Database Error in createGoogleUser:", error.message);
-      throw error;
+      throw new Error(`Database Error in createGoogleUser: ${error.message}`);
     }
   },
 };
