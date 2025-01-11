@@ -210,8 +210,8 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
+      const client = await db.connect(); // Kết nối transaction
       try {
-        // Log Google Profile
         if (!profile) {
           throw new Error("Google Profile is missing.");
         }
@@ -238,17 +238,18 @@ passport.use(
           return done(null, existingUser);
         }
 
-        // Nếu không tồn tại, tạo tài khoản mới
+        // Nếu không tồn tại, bắt đầu transaction
+        await client.query("BEGIN");
+
         const newUser = {
           username: profile.displayName || `user_${Date.now()}`,
           email,
           avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
         };
 
-        // Log thông tin user mới
         console.log("Creating new Google user:", newUser);
 
-        const userId = await usersModel.createGoogleUser(newUser);
+        const userId = await usersModel.createGoogleUser(newUser, client);
 
         if (!userId) {
           throw new Error("Failed to create a new user via Google OAuth.");
@@ -261,12 +262,22 @@ passport.use(
           );
         }
 
-        // Log thông tin user vừa tạo
+        // Commit transaction nếu mọi thứ thành công
+        await client.query("COMMIT");
+
         console.log("New user created:", createdUser);
         return done(null, createdUser);
       } catch (error) {
-        // Log lỗi
-        throw new Error(`Google OAuth Error: ${error.message}`);
+        // Rollback nếu có lỗi
+        await client.query("ROLLBACK").catch((rollbackError) => {
+          console.error("Failed to rollback transaction:", rollbackError);
+        });
+
+        // Log lỗi và ném lại
+        console.error(`Google OAuth Error: ${error.message}`);
+        return done(error, null);
+      } finally {
+        client.release(); // Giải phóng kết nối transaction
       }
     }
   )

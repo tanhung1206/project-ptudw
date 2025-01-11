@@ -61,7 +61,10 @@ module.exports = {
   },
 
   async createGoogleUser({ username, email, avatar }) {
+    const client = await db.connect(); // Lấy kết nối transaction
     try {
+      await client.query("BEGIN"); // Bắt đầu transaction
+
       const existingUser = (await this.findByEmail(email))[0];
       if (existingUser) {
         throw new Error(
@@ -69,7 +72,7 @@ module.exports = {
         );
       }
 
-      const result = await db.query(
+      const result = await client.query(
         `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
        VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
         [username, email, avatar]
@@ -79,10 +82,14 @@ module.exports = {
         throw new Error("Failed to create Google user: No userId returned.");
       }
 
+      await client.query("COMMIT"); // Commit nếu mọi thứ ổn
       return result.rows[0].userId;
     } catch (error) {
+      await client.query("ROLLBACK"); // Rollback nếu có lỗi
       console.error("Database Error in createGoogleUser:", error.message);
       throw new Error(`Database Error in createGoogleUser: ${error.message}`);
+    } finally {
+      client.release(); // Đóng kết nối transaction
     }
   },
 };
