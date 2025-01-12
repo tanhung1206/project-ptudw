@@ -4,6 +4,8 @@ const usersModel = require("../models/usersModel");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const { sendActivationEmail } = require("../services/emailService");
+const crypto = require("crypto"); // Để tạo token reset mật khẩu
+const { sendResetPasswordEmail } = require("../services/emailService");
 
 // GET /login - Render the login page
 router.get("/login", (req, res) => {
@@ -210,7 +212,6 @@ router.get("/check-availability", async (req, res) => {
 });
 
 // Route bắt đầu quá trình Google OAuth
-// Route bắt đầu quá trình Google OAuth
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -234,5 +235,165 @@ router.get(
     }
   }
 );
+
+// GET /forgot-password - Render the forgot password page
+router.get("/forgot-password", (req, res) => {
+  res.render("forgot-password", {
+    title: "Forgot Password",
+    message: "Forgot Password",
+    currentPage: "forgot-password",
+    errorMessage: req.query.error || null,
+  });
+});
+
+// POST /forgot-password - Handle forgot password form submission
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.render("forgot-password", {
+        title: "Forgot Password",
+        message: "Forgot Password",
+        currentPage: "forgot-password",
+        errorMessage: "Email is required.",
+      });
+    }
+
+    const user = (await usersModel.findByEmail(email))[0];
+    if (!user) {
+      return res.render("forgot-password", {
+        title: "Forgot Password",
+        message: "Forgot Password",
+        currentPage: "forgot-password",
+        errorMessage: "No account found with this email address.",
+      });
+    }
+
+    // Generate reset token and expiration
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpiration = new Date(Date.now() + 3600000); // Token valid for 1 hour
+
+    // Save token and expiration in the database
+    await usersModel.saveResetPasswordToken(
+      email,
+      resetToken,
+      resetTokenExpiration
+    );
+
+    // Send reset password email
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/user/reset-password/${resetToken}`;
+    await sendResetPasswordEmail(email, resetLink);
+
+    res.render("forgot-password", {
+      title: "Forgot Password",
+      message: "Forgot Password",
+      currentPage: "forgot-password",
+      successMessage: "Password reset link has been sent to your email.",
+    });
+  } catch (error) {
+    console.error("Forgot Password Error:", error.message);
+    res.status(500).render("forgot-password", {
+      title: "Forgot Password",
+      message: "Forgot Password",
+      currentPage: "forgot-password",
+      errorMessage: "An error occurred. Please try again later.",
+    });
+  }
+});
+
+// GET /reset-password/:token - Render reset password page
+router.get("/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await usersModel.verifyResetToken(token);
+    if (!user) {
+      return res.status(400).render("reset-password", {
+        title: "Reset Password",
+        message: "Reset Password",
+        currentPage: "reset-password",
+        errorMessage: "Invalid or expired reset token.",
+      });
+    }
+
+    res.render("reset-password", {
+      title: "Reset Password",
+      message: "Reset Password",
+      currentPage: "reset-password",
+      token,
+    });
+  } catch (error) {
+    console.error("Reset Password Page Error:", error.message);
+    res.status(500).render("reset-password", {
+      title: "Reset Password",
+      message: "Reset Password",
+      currentPage: "reset-password",
+      errorMessage: "An error occurred. Please try again later.",
+    });
+  }
+});
+
+// POST /reset-password/:token - Handle reset password form submission
+router.post("/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (!password || !confirmPassword) {
+      return res.render("reset-password", {
+        title: "Reset Password",
+        message: "Reset Password",
+        currentPage: "reset-password",
+        errorMessage: "All fields are required.",
+        token,
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.render("reset-password", {
+        title: "Reset Password",
+        message: "Reset Password",
+        currentPage: "reset-password",
+        errorMessage: "Passwords do not match.",
+        token,
+      });
+    }
+
+    const user = await usersModel.verifyResetToken(token);
+    if (!user) {
+      return res.status(400).render("reset-password", {
+        title: "Reset Password",
+        message: "Reset Password",
+        currentPage: "reset-password",
+        errorMessage: "Invalid or expired reset token.",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 8);
+
+    // Update password and clear reset token
+    await usersModel.resetPassword(user.userid, hashedPassword);
+
+    res.render("reset-password", {
+      title: "Reset Password",
+      message: "Reset Password",
+      currentPage: "reset-password",
+      successMessage:
+        "Your password has been reset successfully. <a href='/user/login'>Click here</a> to login.",
+    });
+  } catch (error) {
+    console.error("Reset Password Error:", error.message);
+    res.status(500).render("reset-password", {
+      title: "Reset Password",
+      message: "Reset Password",
+      currentPage: "reset-password",
+      errorMessage: "An error occurred. Please try again later.",
+    });
+  }
+});
 
 module.exports = router;

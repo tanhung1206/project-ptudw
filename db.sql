@@ -37,6 +37,8 @@ CREATE TABLE Users (
     isBan BOOLEAN DEFAULT FALSE,
     isActivated BOOLEAN DEFAULT FALSE,
     authProvider VARCHAR(50) DEFAULT 'local',
+    resetToken VARCHAR(255),
+    resetTokenExpiration TIMESTAMP,
     CONSTRAINT check_auth_provider_password CHECK (
         (authProvider = 'local' AND password IS NOT NULL)
         OR (authProvider = 'google' AND password IS NULL)
@@ -153,42 +155,25 @@ VALUES
     ('Z.N.E. Full-Zip Hooded Track Jacket','/img/products/product16.jpg',110,'Zip up and find your focus in this adidas track jacket. The cozy three-layer doubleknit fabric helps lock in warmth, while a full-coverage hood makes it easy to block out the world when you need some "me time." When you''re feeling refreshed and ready to take on the day, a matte rubber-print 3 Bar Logo reminds you that you''re always connected to your community through sport.','<div class="row"><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Regular fit</li><li class="list-group-item px-0">Full zip with hood</li><li class="list-group-item px-0">57% polyester (recycled), 43% cotton</li><li class="list-group-item px-0">Front zip pockets</li><li class="list-group-item px-0">Three-layer fabric</li></ul></div><div class="col-md-6"><ul class="list-group list-group-flush"><li class="list-group-item px-0">Contains a minimum of 70% recycled and renewable content</li><li class="list-group-item px-0">Imported</li><li class="list-group-item px-0">Product color: Magic Beige</li><li class="list-group-item px-0">Product code: JF2445</li></ul></div></div>',5,2,2, FLOOR(RANDOM() * 100), DATE '2024-11-01' + (INTERVAL '1 day' * FLOOR(RANDOM() * 30)));
 
 -- 10. Thêm dữ liệu vào bảng Users
--- INSERT INTO Users (email, username, password, firstName, lastName, avatar, isAdmin, createdAt, isBan)
--- VALUES
---     ('john.doe@example.com', 'johndoe', '$2a$10$7a8b9c8d7e6f5g4h3i2j1k', 'John', 'Doe', '/img/avatars/johndoe.jpg', FALSE, CURRENT_DATE, FALSE),
---     ('jane.smith@example.com', 'janesmith', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Jane', 'Smith', '/img/avatars/janesmith.jpg', FALSE, CURRENT_DATE, FALSE),
---     ('alice.wonderland@example.com', 'alicewonderland', '$2a$10$5a6b7c8d9e0f1g2h3i4j5k', 'Alice', 'Wonderland', '/img/avatars/alice.jpg', FALSE, CURRENT_DATE, FALSE),
---     ('bob.builder@example.com', 'bobbuilder', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Bob', 'Builder', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('charlie.brown@example.com', 'charliebrown', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Charlie', 'Brown', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('david.jones@example.com', 'davidjones', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'David', 'Jones', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('emily.clark@example.com', 'emilyclark', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Emily', 'Clark', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('frank.wright@example.com', 'frankwright', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Frank', 'Wright', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('george.king@example.com', 'georgeking', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'George', 'King', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('hannah.martin@example.com', 'hannahmartin', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Hannah', 'Martin', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('ian.scott@example.com', 'ianscott', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Ian', 'Scott', '/img/default-avatarp', FALSE, CURRENT_DATE, FALSE),
---     ('julia.roberts@example.com', 'juliaroberts', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Julia', 'Roberts', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('kevin.baker@example.com', 'kevinbaker', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Kevin', 'Baker', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('lisa.moore@example.com', 'lisamoore', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Lisa', 'Moore', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('michael.davis@example.com', 'michaeldavis', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Michael', 'Davis', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE),
---     ('nina.wilson@example.com', 'ninawilson', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Nina', 'Wilson', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE);
-INSERT INTO Users (email, username, password, firstName, lastName, avatar, isAdmin, createdAt, isBan, isActivated, authProvider)
+INSERT INTO Users (email, username, password, firstName, lastName, avatar, isAdmin, createdAt, isBan, isActivated, authProvider, resetToken, resetTokenExpiration)
 VALUES
-    ('john.doe@example.com', 'johndoe', '$2a$10$7a8b9c8d7e6f5g4h3i2j1k', 'John', 'Doe', '/img/avatars/johndoe.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('jane.smith@example.com', 'janesmith', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Jane', 'Smith', '/img/avatars/janesmith.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('alice.wonderland@example.com', 'alicewonderland', '$2a$10$5a6b7c8d7e6f5g4h3i4j5k', 'Alice', 'Wonderland', '/img/avatars/alice.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('bob.builder@example.com', 'bobbuilder', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Bob', 'Builder', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('charlie.brown@example.com', 'charliebrown', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Charlie', 'Brown', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('david.jones@example.com', 'davidjones', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'David', 'Jones', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('emily.clark@example.com', 'emilyclark', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Emily', 'Clark', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('frank.wright@example.com', 'frankwright', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Frank', 'Wright', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('george.king@example.com', 'georgeking', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'George', 'King', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('hannah.martin@example.com', 'hannahmartin', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Hannah', 'Martin', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('ian.scott@example.com', 'ianscott', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Ian', 'Scott', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('julia.roberts@example.com', 'juliaroberts', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Julia', 'Roberts', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('kevin.baker@example.com', 'kevinbaker', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Kevin', 'Baker', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('lisa.moore@example.com', 'lisamoore', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Lisa', 'Moore', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('michael.davis@example.com', 'michaeldavis', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Michael', 'Davis', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local'),
-    ('nina.wilson@example.com', 'ninawilson', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Nina', 'Wilson', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local');
+    ('john.doe@example.com', 'johndoe', '$2a$10$7a8b9c8d7e6f5g4h3i2j1k', 'John', 'Doe', '/img/avatars/johndoe.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('jane.smith@example.com', 'janesmith', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Jane', 'Smith', '/img/avatars/janesmith.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('alice.wonderland@example.com', 'alicewonderland', '$2a$10$5a6b7c8d7e6f5g4h3i4j5k', 'Alice', 'Wonderland', '/img/avatars/alice.jpg', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('bob.builder@example.com', 'bobbuilder', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Bob', 'Builder', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('charlie.brown@example.com', 'charliebrown', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Charlie', 'Brown', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('david.jones@example.com', 'davidjones', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'David', 'Jones', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('emily.clark@example.com', 'emilyclark', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Emily', 'Clark', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('frank.wright@example.com', 'frankwright', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Frank', 'Wright', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('george.king@example.com', 'georgeking', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'George', 'King', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('hannah.martin@example.com', 'hannahmartin', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Hannah', 'Martin', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('ian.scott@example.com', 'ianscott', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Ian', 'Scott', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('julia.roberts@example.com', 'juliaroberts', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Julia', 'Roberts', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('kevin.baker@example.com', 'kevinbaker', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Kevin', 'Baker', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('lisa.moore@example.com', 'lisamoore', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Lisa', 'Moore', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('michael.davis@example.com', 'michaeldavis', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Michael', 'Davis', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('nina.wilson@example.com', 'ninawilson', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Nina', 'Wilson', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL);
+
 
 -- 11. Thêm dữ liệu vào bảng Reviews
 INSERT INTO Reviews (review, stars, createdAt, productId, userId)

@@ -141,68 +141,6 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Cấu hình Google Strategy
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-//     },
-//     async (profile, done) => {
-//       try {
-//         console.log("Google Profile:", profile);
-
-//         const email = profile.emails?.[0]?.value;
-//         if (!email) {
-//           console.error("Google profile does not have an email.");
-//           return done(null, false, {
-//             message: "Google profile missing email.",
-//           });
-//         }
-
-//         // Kiểm tra xem email đã tồn tại hay chưa
-//         const existingUser = (await usersModel.findByEmail(email))[0];
-//         if (existingUser) {
-//           console.log("Existing user found:", existingUser);
-
-//           // Nếu tài khoản đã tồn tại nhưng không phải Google OAuth
-//           if (existingUser.authProvider !== "google") {
-//             return done(null, false, {
-//               message:
-//                 "Your email is registered as a standard account. Please log in with your password.",
-//             });
-//           }
-
-//           // Nếu tài khoản là Google OAuth
-//           return done(null, existingUser);
-//         }
-
-//         // Nếu không tồn tại, tạo tài khoản mới
-//         const newUser = {
-//           username: profile.displayName || `user_${Date.now()}`,
-//           email,
-//           avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
-//         };
-
-//         console.log("Creating new Google user:", newUser);
-//         const userId = await usersModel.createGoogleUser(newUser);
-
-//         if (!userId) {
-//           console.error("Failed to create Google user.");
-//           throw new Error("Failed to create a new user via Google OAuth.");
-//         }
-
-//         const createdUser = (await usersModel.findById(userId))[0];
-//         console.log("New user created:", createdUser);
-//         return done(null, createdUser);
-//       } catch (error) {
-//         console.error("Google OAuth Error:", error);
-//         return done(error, null);
-//       }
-//     }
-//   )
-// );
-// Cấu hình Google Strategy
 passport.use(
   new GoogleStrategy(
     {
@@ -320,7 +258,6 @@ const checkoutRouter = require("./controllers/checkoutController");
 const contactRouter = require("./controllers/contactController");
 const indexRouter = require("./controllers/indexController");
 const usersRouter = require("./controllers/usersController");
-// const registerRouter = require('./controllers/registerController');
 const productsRouter = require("./controllers/productsController");
 const ordersRouter = require("./controllers/ordersController");
 const authRouter = require("./controllers/usersController");
@@ -332,7 +269,6 @@ app.use("/checkout", require("./middlewares/restrict"), checkoutRouter);
 app.use("/contact", contactRouter);
 app.use("/auth", authRouter);
 app.use("/user", usersRouter);
-// app.use('/register', registerRouter);
 app.use("/products", productsRouter);
 app.use("/orders", require("./middlewares/restrict"), ordersRouter);
 

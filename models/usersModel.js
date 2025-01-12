@@ -92,4 +92,48 @@ module.exports = {
       client.release(); // Đóng kết nối transaction
     }
   },
+
+  // Save reset password token
+  async saveResetPasswordToken(email, token, expiration) {
+    try {
+      const result = await db.query(
+        `UPDATE ${tableName} SET resetToken = $1, resetTokenExpiration = $2 WHERE email = $3`,
+        [token, expiration, email]
+      );
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Error in saveResetPasswordToken:", error.message);
+      throw new Error(
+        `Database Error in saveResetPasswordToken: ${error.message}`
+      );
+    }
+  },
+
+  // Verify reset password token
+  async verifyResetToken(token) {
+    try {
+      const result = await db.query(
+        `SELECT * FROM ${tableName} WHERE resetToken = $1 AND resetTokenExpiration > NOW()`,
+        [token]
+      );
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error in verifyResetToken:", error.message);
+      throw new Error(`Database Error in verifyResetToken: ${error.message}`);
+    }
+  },
+
+  // Reset password
+  async resetPassword(userId, newPassword) {
+    try {
+      const result = await db.query(
+        `UPDATE ${tableName} SET password = $1, resetToken = NULL, resetTokenExpiration = NULL WHERE userid = $2`,
+        [newPassword, userId]
+      );
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Error in resetPassword:", error.message);
+      throw new Error(`Database Error in resetPassword: ${error.message}`);
+    }
+  },
 };
