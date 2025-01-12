@@ -6,11 +6,113 @@
                     <h5>User Profile</h5>
                 </div>
                 <div class="card-body text-center">
-                    <img src="/img/default-avatar.png" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
-                    <h6 class="card-title">{{user.username}}</h6>
-                    <p class="card-text text-muted">{{user.email}}</p>
+                    <!-- Avatar -->
+                    <div class="avatar-container">
+                        <img id="user-avatar" src="{{user.avatar}}" alt="Avatar" class="rounded-circle mb-3"
+                            style="width: 100px; height: 100px; cursor: pointer;" />
+                        <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display: none;" />
+                    </div>
+
+                    <!-- User Information -->
+                    <p><strong>Username:</strong> {{user.username}}</p>
+                    <p><strong>Email:</strong> {{user.email}}</p>
+                    <p><strong>Name:</strong> {{user.firstname}} {{user.lastname}}</p>
+                    <p><strong>Password:</strong> ********</p>
+
+                    <!-- Update Buttons -->
+                    <button type="button" class="btn btn-primary mt-3" id="update-profile-button">
+                        Update Profile
+                    </button>
+                    <button type="button" class="btn btn-secondary mt-3" id="change-password-button">
+                        Change Password
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal 1: Update Profile -->
+<div class="modal fade" id="updateProfileModal" tabindex="-1" role="dialog" aria-labelledby="updateProfileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateProfileModalLabel">Update Profile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="update-profile-form">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+                    <!-- First Name Field -->
+                    <div class="form-group">
+                        <label for="firstname">First Name</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname"
+                            value="{{user.firstname}}" />
+                        <small id="firstname-error" class="text-danger"></small>
+                    </div>
+
+                    <!-- Last Name Field -->
+                    <div class="form-group">
+                        <label for="lastname">Last Name</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname"
+                            value="{{user.lastname}}" />
+                        <small id="lastname-error" class="text-danger"></small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                <button type="button" class="btn btn-primary" id="save-profile-button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal 2: Change Password -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                    <div class="form-group">
+                        <label for="old-password">Old Password</label>
+                        <input type="password" class="form-control" id="old-password" name="oldPassword"
+                            placeholder="Enter old password" />
+                        <small id="old-password-error" class="text-danger"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" class="form-control" id="new-password" name="newPassword"
+                            placeholder="Enter new password" />
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm-password" name="confirmPassword"
+                            placeholder="Confirm new password" />
+                        <small id="confirm-password-error" class="text-danger"></small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                <button type="button" class="btn btn-primary" id="save-password-button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/js/profile.js"></script>
