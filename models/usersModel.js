@@ -38,7 +38,7 @@ module.exports = {
     try {
       const result = await db.query(
         `INSERT INTO Users (username, password, email, avatar, isActivated, authProvider)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING userId`,
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING userid`,
         [
           username,
           password,
@@ -49,11 +49,11 @@ module.exports = {
         ]
       );
 
-      if (!result.rows[0]?.userId) {
+      if (!result.rows[0]?.userid) {
         throw new Error("Failed to insert user: No userId returned.");
       }
 
-      return result.rows[0].userId;
+      return result.rows[0].userid;
     } catch (error) {
       console.error("Database Error in insertUser:", error.message);
       throw new Error(`Database Error in insertUser: ${error.message}`);
