@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 const usersModel = require("./models/usersModel");
 const moment = require("moment");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const db = require("./db/db");
 require("dotenv").config();
 
 const app = express();
