@@ -172,8 +172,8 @@ VALUES
     ('kevin.baker@example.com', 'kevinbaker', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Kevin', 'Baker', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
     ('lisa.moore@example.com', 'lisamoore', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Lisa', 'Moore', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
     ('michael.davis@example.com', 'michaeldavis', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Michael', 'Davis', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
-    ('nina.wilson@example.com', 'ninawilson', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Nina', 'Wilson', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL);
-
+    ('nina.wilson@example.com', 'ninawilson', '$2a$10$1a2b3c4d5e6f7g8h9i0j1k', 'Nina', 'Wilson', '/img/default-avatar.png', FALSE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL),
+    ('superadmin@gmail.com', 'superadmin', '$2a$08$iLtWCUW2GKglI5q8l9hhl.eoemVCSjid5VxIzyLr7S0F48KzzgAP.', 'Super', 'Admin', '/img/avatars/superadmin.jpg', TRUE, CURRENT_DATE, FALSE, TRUE, 'local', NULL, NULL);    
 
 -- 11. Thêm dữ liệu vào bảng Reviews
 INSERT INTO Reviews (review, stars, createdAt, productId, userId)
@@ -258,3 +258,49 @@ VALUES
     ('Good product, but overpriced', 3, DATE '2024-12-12' + (INTERVAL '1 day' * FLOOR(RANDOM() * 30)), 16, 6),
     ('Excellent value for money', 5, DATE '2024-12-12' + (INTERVAL '1 day' * FLOOR(RANDOM() * 30)), 16, 7),
     ('Not satisfied with the quality', 2, DATE '2024-12-12' + (INTERVAL '1 day' * FLOOR(RANDOM() * 30)), 16, 8);
+
+-- Thêm dữ liệu vào bảng Addresses
+INSERT INTO Addresses (fullName, email, phone, address, zipcode, createdAt)
+VALUES
+    ('John Doe', 'john.doe@example.com', '1234567890', '123 Main St, Springfield', '10001', '2024-11-15'),
+    ('Jane Smith', 'jane.smith@example.com', '0987654321', '456 Oak St, Riverside', '10002', '2024-11-20'),
+    ('Alice Johnson', 'alice.johnson@example.com', '1122334455', '789 Pine St, Brookfield', '10003', '2024-12-01'),
+    ('Bob Brown', 'bob.brown@example.com', '6677889900', '321 Elm St, Hill Valley', '10004', '2024-12-10'),
+    ('Charlie Davis', 'charlie.davis@example.com', '9988776655', '654 Maple St, Meadowview', '10005', '2024-12-25'),
+    ('Emily Clark', 'emily.clark@example.com', '5566778899', '987 Birch St, Lakewood', '10006', '2025-01-05'),
+    ('Frank Harris', 'frank.harris@example.com', '4455667788', '213 Cedar St, Sunnydale', '10007', '2025-01-12'),
+    ('Grace Lee', 'grace.lee@example.com', '3344556677', '678 Walnut St, Riverdale', '10008', '2025-01-13');
+
+-- 13. Thêm dữ liệu vào bảng Orders
+INSERT INTO Orders (userId, addressid, total, createdAt, status)
+VALUES
+    (1, 2, 400, '2024-11-10', 1),
+    (3, 2, 600, '2024-11-12', 2),
+    (4, 1, 550, '2024-11-18', 1),
+    (5, 3, 750, '2024-11-22', 0),
+    (2, 4, 200, '2024-12-01', 3),
+    (3, 3, 500, '2024-12-10', 1),
+    (4, 2, 300, '2024-12-15', 2),
+    (1, 1, 450, '2024-12-18', 1),
+    (5, 3, 800, '2025-01-02', 3),
+    (2, 4, 650, '2025-01-05', 0),
+    (3, 1, 400, '2025-01-08', 1),
+    (4, 2, 350, '2025-01-12', 2),
+    (5, 3, 500, '2025-01-13', 1);
+
+-- 14. Thêm dữ liệu vào bảng OrderDetails
+INSERT INTO OrderDetails (orderId, productId, quantity, createdAt)
+VALUES
+    (6, 1, 1, '2024-11-10'),
+    (6, 3, 2, '2024-11-10'),
+    (7, 4, 3, '2024-11-12'),
+    (7, 5, 1, '2024-11-12'),
+    (8, 6, 2, '2024-11-18'),
+    (8, 7, 1, '2024-11-18'),
+    (9, 8, 4, '2024-11-22'),
+    (10, 6, 2, '2024-12-01'),
+    (10, 1, 1, '2024-12-01'),
+    (11, 2, 2, '2024-12-10'),
+    (11, 3, 3, '2024-12-10'),
+    (12, 4, 1, '2024-12-15'),
+    (12, 5, 2, '2024-12-15');
