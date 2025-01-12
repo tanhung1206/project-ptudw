@@ -136,4 +136,28 @@ module.exports = {
       throw new Error(`Database Error in resetPassword: ${error.message}`);
     }
   },
+
+  async updateProfile(userId, firstname, lastname) {
+    const result = await db.query(
+      `UPDATE Users SET firstname = $1, lastname = $2 WHERE userId = $3`,
+      [firstname, lastname, userId]
+    );
+    return result.rowCount;
+  },
+
+  async updateAvatar(userId, avatarPath) {
+    const result = await db.query(
+      `UPDATE Users SET avatar = $1 WHERE userId = $2`,
+      [avatarPath, userId]
+    );
+    return result.rowCount;
+  },
+
+  async updatePassword(userId, newPassword) {
+    const result = await db.query(
+      `UPDATE Users SET password = $1 WHERE userId = $2`,
+      [newPassword, userId]
+    );
+    return result.rowCount;
+  },
 };

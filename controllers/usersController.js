@@ -4,8 +4,9 @@ const usersModel = require("../models/usersModel");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const { sendActivationEmail } = require("../services/emailService");
-const crypto = require("crypto"); // Để tạo token reset mật khẩu
+const crypto = require("crypto");
 const { sendResetPasswordEmail } = require("../services/emailService");
+const multer = require("multer");
 
 // GET /login - Render the login page
 router.get("/login", (req, res) => {
@@ -395,5 +396,116 @@ router.post("/reset-password/:token", async (req, res) => {
     });
   }
 });
+
+// POST /user/update-profile - Verify and update user information
+router.post(
+  "/update-profile",
+  require("../middlewares/restrict"),
+  async (req, res) => {
+    try {
+      const { firstname, lastname } = req.body;
+
+      // Validate input
+      if (!firstname || !lastname) {
+        return res
+          .status(400)
+          .json({ error: "Firstname and lastname are required." });
+      }
+
+      const nameRegex = /^[A-Z][a-z]*(?:\s+[A-Z][a-z]*)*$/;
+
+      if (!nameRegex.test(firstname)) {
+        return res.status(400).json({
+          error:
+            "Firstname must start with an uppercase letter and contain only letters.",
+        });
+      }
+
+      if (!nameRegex.test(lastname)) {
+        return res.status(400).json({
+          error:
+            "Lastname must start with an uppercase letter and contain only letters.",
+        });
+      }
+
+      // Update user profile in the database
+      await usersModel.updateProfile(req.user.userid, firstname, lastname);
+
+      res.status(200).json({ message: "Profile updated successfully." });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating your profile." });
+    }
+  }
+);
+
+// Configure multer for file uploads
+const upload = multer({ dest: "public/uploads/avatars/" });
+
+// POST /user/update-avatar - Update user's avatar
+router.post(
+  "/update-avatar",
+  require("../middlewares/restrict"),
+  upload.single("avatar"),
+  async (req, res) => {
+    try {
+      const avatarPath = `/uploads/avatars/${req.file.filename}`;
+
+      // Update the avatar in the database
+      await usersModel.updateAvatar(req.user.userid, avatarPath);
+
+      res
+        .status(200)
+        .json({ message: "Avatar updated successfully.", avatar: avatarPath });
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating your avatar." });
+    }
+  }
+);
+
+// POST /user/update-password - Update user's password
+router.post(
+  "/update-password",
+  require("../middlewares/restrict"),
+  async (req, res) => {
+    try {
+      const { oldPassword, newPassword, confirmPassword } = req.body;
+
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        return res
+          .status(400)
+          .json({ error: "All password fields are required." });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res
+          .status(400)
+          .json({ error: "New password and confirm password do not match." });
+      }
+
+      const user = (await usersModel.findById(req.user.userid))[0];
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ error: "Old password is incorrect." });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 8);
+      await usersModel.updatePassword(req.user.userid, hashedNewPassword);
+
+      res.status(200).json({ message: "Password updated successfully." });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating your password." });
+    }
+  }
+);
 
 module.exports = router;
