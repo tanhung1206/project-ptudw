@@ -4,6 +4,7 @@ const usersModel = require("../models/usersModel");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const { sendActivationEmail } = require("../services/emailService");
+const firebaseAdmin = require("../config/firebase-config");
 
 // GET /login - Render the login page
 router.get("/login", (req, res) => {
@@ -209,30 +210,36 @@ router.get("/check-availability", async (req, res) => {
   }
 });
 
-// Route bắt đầu quá trình Google OAuth
-// Route bắt đầu quá trình Google OAuth
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+router.post("/google-login", async (req, res) => {
+  try {
+    console.log("Received Google login request");
+    const { token } = req.body;
+    console.log("Received Token:", token);
 
-// Route callback từ Google
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/user/login?error=Unable to login with Google.",
-  }),
-  (req, res) => {
-    try {
-      if (!req.user) {
-        throw new Error("Google login failed: No user returned from Passport.");
-      }
-      res.redirect("/");
-    } catch (error) {
-      console.error(error.message);
-      res.redirect(`/user/login?error=${encodeURIComponent(error.message)}`);
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    console.log("Decoded Token:", decodedToken);
+
+    const { email, name, picture, uid } = decodedToken;
+
+    let user = await usersModel.findByEmail(email);
+    if (!user) {
+      console.log("User not found, creating new user");
+      const userId = await usersModel.createGoogleUser({
+        username: name,
+        email,
+        avatar: picture,
+        firebase_uid: uid,
+      });
+      user = await usersModel.findById(userId);
     }
+
+    req.session.user = user;
+    console.log("Login successful, session set");
+    res.status(200).json({ success: true, message: "Login successful!" });
+  } catch (error) {
+    console.error("Error during Google login:", error.message);
+    res.status(401).json({ success: false, message: "Authentication failed." });
   }
-);
+});
 
 module.exports = router;

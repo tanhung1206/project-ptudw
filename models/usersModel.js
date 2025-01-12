@@ -60,36 +60,12 @@ module.exports = {
     }
   },
 
-  async createGoogleUser({ username, email, avatar }) {
-    const client = await db.connect(); // Lấy kết nối transaction
-    try {
-      await client.query("BEGIN"); // Bắt đầu transaction
-
-      const existingUser = (await this.findByEmail(email))[0];
-      if (existingUser) {
-        throw new Error(
-          `Email ${email} is already associated with another account.`
-        );
-      }
-
-      const result = await client.query(
-        `INSERT INTO ${tableName} (username, email, password, avatar, isActivated, authProvider)
-       VALUES ($1, $2, NULL, $3, TRUE, 'google') RETURNING userId`,
-        [username, email, avatar]
-      );
-
-      if (!result.rows[0]?.userId) {
-        throw new Error("Failed to create Google user: No userId returned.");
-      }
-
-      await client.query("COMMIT"); // Commit nếu mọi thứ ổn
-      return result.rows[0].userId;
-    } catch (error) {
-      await client.query("ROLLBACK"); // Rollback nếu có lỗi
-      console.error("Database Error in createGoogleUser:", error.message);
-      throw new Error(`Database Error in createGoogleUser: ${error.message}`);
-    } finally {
-      client.release(); // Đóng kết nối transaction
-    }
+  async createGoogleUser({ username, email, avatar, firebase_uid }) {
+    const result = await db.query(
+      `INSERT INTO Users (username, email, avatar, firebase_uid, isActivated, authProvider)
+     VALUES ($1, $2, $3, $4, TRUE, 'google') RETURNING userId`,
+      [username, email, avatar, firebase_uid]
+    );
+    return result.rows[0]?.userId;
   },
 };

@@ -66,9 +66,9 @@
                 
                 <!-- Social Login -->
                 <div class="text-center mt-3">
-                    <a href="/auth/google" class="btn btn-outline-primary">
+                    <button id="google-login-btn" class="btn btn-outline-primary btn-google-login">
                         <i class="fab fa-google"></i> Login with Google
-                    </a>
+                    </button>
                     <button class="btn btn-outline-primary"><i class="fab fa-facebook-f"></i> Login with
                         Facebook</button>
                 </div>
@@ -82,5 +82,6 @@
     </div>
 </div>
 <!-- Login End -->
-
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js"></script>
 <script src="/js/login.js"></script>

@@ -7,7 +7,8 @@ const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const usersModel = require("./models/usersModel");
 const moment = require("moment");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const firebaseAdmin = require("./config/firebase-config");
+// const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
 
 const app = express();
@@ -139,149 +140,42 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Cấu hình Google Strategy
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-//     },
-//     async (profile, done) => {
-//       try {
-//         console.log("Google Profile:", profile);
+// Route xử lý token từ frontend
+app.post("/auth/google-login", async (req, res) => {
+  try {
+    const { token } = req.body;
 
-//         const email = profile.emails?.[0]?.value;
-//         if (!email) {
-//           console.error("Google profile does not have an email.");
-//           return done(null, false, {
-//             message: "Google profile missing email.",
-//           });
-//         }
+    // Xác thực token bằng Firebase Admin SDK
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
 
-//         // Kiểm tra xem email đã tồn tại hay chưa
-//         const existingUser = (await usersModel.findByEmail(email))[0];
-//         if (existingUser) {
-//           console.log("Existing user found:", existingUser);
+    const { email, name, picture, uid } = decodedToken;
 
-//           // Nếu tài khoản đã tồn tại nhưng không phải Google OAuth
-//           if (existingUser.authProvider !== "google") {
-//             return done(null, false, {
-//               message:
-//                 "Your email is registered as a standard account. Please log in with your password.",
-//             });
-//           }
-
-//           // Nếu tài khoản là Google OAuth
-//           return done(null, existingUser);
-//         }
-
-//         // Nếu không tồn tại, tạo tài khoản mới
-//         const newUser = {
-//           username: profile.displayName || `user_${Date.now()}`,
-//           email,
-//           avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
-//         };
-
-//         console.log("Creating new Google user:", newUser);
-//         const userId = await usersModel.createGoogleUser(newUser);
-
-//         if (!userId) {
-//           console.error("Failed to create Google user.");
-//           throw new Error("Failed to create a new user via Google OAuth.");
-//         }
-
-//         const createdUser = (await usersModel.findById(userId))[0];
-//         console.log("New user created:", createdUser);
-//         return done(null, createdUser);
-//       } catch (error) {
-//         console.error("Google OAuth Error:", error);
-//         return done(error, null);
-//       }
-//     }
-//   )
-// );
-// Cấu hình Google Strategy
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      const client = await db.connect(); // Kết nối transaction
-      try {
-        if (!profile) {
-          throw new Error("Google Profile is missing.");
-        }
-        console.log("Google Profile:", profile);
-
-        const email = profile.emails?.[0]?.value;
-        if (!email) {
-          throw new Error("Google profile does not have an email.");
-        }
-
-        // Kiểm tra xem email đã tồn tại hay chưa
-        const existingUser = (await usersModel.findByEmail(email))[0];
-        if (existingUser) {
-          console.log("Existing user found:", existingUser);
-
-          // Nếu tài khoản đã tồn tại nhưng không phải Google OAuth
-          if (existingUser.authProvider !== "google") {
-            throw new Error(
-              "Your email is registered as a standard account. Please log in with your password."
-            );
-          }
-
-          // Nếu tài khoản là Google OAuth
-          return done(null, existingUser);
-        }
-
-        // Nếu không tồn tại, bắt đầu transaction
-        await client.query("BEGIN");
-
-        const newUser = {
-          username: profile.displayName || `user_${Date.now()}`,
-          email,
-          avatar: profile.photos?.[0]?.value || "/img/default-avatar.png",
-        };
-
-        console.log("Creating new Google user:", newUser);
-
-        const userId = await usersModel.createGoogleUser(newUser, client);
-
-        if (!userId) {
-          throw new Error("Failed to create a new user via Google OAuth.");
-        }
-
-        const createdUser = (await usersModel.findById(userId))[0];
-        if (!createdUser) {
-          throw new Error(
-            `User created successfully but could not be retrieved from database. UserID: ${userId}`
-          );
-        }
-
-        // Commit transaction nếu mọi thứ thành công
-        await client.query("COMMIT");
-
-        console.log("New user created:", createdUser);
-        return done(null, createdUser);
-      } catch (error) {
-        // Rollback nếu có lỗi
-        await client.query("ROLLBACK").catch((rollbackError) => {
-          console.error("Failed to rollback transaction:", rollbackError);
-        });
-
-        // Log lỗi và ném lại
-        console.error(`Google OAuth Error: ${error.message}`);
-        return done(error, null);
-      } finally {
-        client.release(); // Giải phóng kết nối transaction
-      }
+    if (!email || !uid) {
+      throw new Error("Invalid token: Missing required fields (email or uid).");
     }
-  )
-);
+
+    // Kiểm tra người dùng trong database
+    let user = (await usersModel.findByEmail(email))[0];
+    if (!user) {
+      // Nếu người dùng chưa tồn tại, tạo mới
+      const userId = await usersModel.createGoogleUser({
+        username: name || `user_${Date.now()}`,
+        email,
+        avatar: picture || "/img/default-avatar.png",
+        firebase_uid: uid,
+      });
+      user = (await usersModel.findById(userId))[0];
+    }
+
+    // Thiết lập session
+    req.session.user = user;
+
+    res.status(200).json({ success: true, message: "Login successful!" });
+  } catch (error) {
+    console.error("Firebase Authentication Error:", error.message);
+    res.status(401).json({ success: false, message: "Authentication failed." });
+  }
+});
 
 // Middleware toàn cục: Cung cấp danh sách categories và thông tin user
 app.use(async (req, res, next) => {
@@ -291,7 +185,7 @@ app.use(async (req, res, next) => {
 
   // Đưa thông tin user vào res.locals để dùng trong views
   // res.locals.user = req.session.user || null;
-  res.locals.user = req.user;
+  res.locals.user = req.session.user || req.user;
 
   if (req.isAuthenticated()) {
     const cartModel = require("./models/cartModel");
@@ -329,7 +223,7 @@ app.use("/about", aboutRouter);
 app.use("/cart", require("./middlewares/restrict"), cartRouter);
 app.use("/checkout", require("./middlewares/restrict"), checkoutRouter);
 app.use("/contact", contactRouter);
-app.use("/auth", authRouter);
+// app.use("/auth", authRouter);
 app.use("/user", usersRouter);
 // app.use('/register', registerRouter);
 app.use("/products", productsRouter);
