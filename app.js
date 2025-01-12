@@ -119,6 +119,10 @@ passport.use(
         );
       }
 
+      if (user.isban) {
+        return done(null, false, "Your account is banned. Please contact admin.");
+      }
+
       // Nếu tất cả hợp lệ, trả về user
       return done(null, user);
     } catch (err) {
