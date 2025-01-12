@@ -229,7 +229,7 @@ passport.use(
           console.log("Existing user found:", existingUser);
 
           // Nếu tài khoản đã tồn tại nhưng không phải Google OAuth
-          if (existingUser.authProvider !== "google") {
+          if (existingUser.authprovider !== "google") {
             throw new Error(
               "Your email is registered as a standard account. Please log in with your password."
             );
