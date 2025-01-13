@@ -49,4 +49,13 @@ module.exports = {
         const result = await db.query(query, [userid]);
         return result.rows;
     },
+    async updateStatus(orderid, status) {
+        const query = `
+        UPDATE ${tableName}
+        SET status = $1
+        WHERE orderid = $2
+        `;
+        const result = await db.query(query, [status, orderid]);
+        return result.rowCount;
+    }
 }
