@@ -52,7 +52,7 @@ router.get('/cancel', (req, res) => {
 });
 
 router.post('/create-payment-link', async (req, res) => {
-    const YOUR_DOMAIN = `http://localhost:3000`;
+    const YOUR_DOMAIN = req.protocol + '://' + req.get('host');
     const items = res.locals.carts.map(item => {
         return {
             name: item.name,
