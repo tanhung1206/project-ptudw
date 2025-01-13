@@ -28,7 +28,7 @@ CREATE TABLE Users (
     userId SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255),
     firstName VARCHAR(255),
     lastName VARCHAR(255),
     avatar VARCHAR(255) DEFAULT '/img/default-avatar.png',

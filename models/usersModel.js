@@ -78,12 +78,12 @@ module.exports = {
         [username, email, avatar]
       );
 
-      if (!result.rows[0]?.userId) {
+      if (!result.rows[0]?.userid) {
         throw new Error("Failed to create Google user: No userId returned.");
       }
 
       await client.query("COMMIT"); // Commit nếu mọi thứ ổn
-      return result.rows[0].userId;
+      return result.rows[0].userid;
     } catch (error) {
       await client.query("ROLLBACK"); // Rollback nếu có lỗi
       console.error("Database Error in createGoogleUser:", error.message);
