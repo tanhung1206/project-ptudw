@@ -97,48 +97,100 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("new-password").value = "";
       document.getElementById("confirm-password").value = "";
       document.getElementById("old-password-error").textContent = "";
+      document.getElementById("new-password-error").textContent = "";
       document.getElementById("confirm-password-error").textContent = "";
     });
 
-  // Save Password Changes
   document
     .getElementById("save-password-button")
     .addEventListener("click", async () => {
-      const oldPassword = document.getElementById("old-password").value;
-      const newPassword = document.getElementById("new-password").value;
-      const confirmPassword = document.getElementById("confirm-password").value;
+      const oldPassword = document.getElementById("old-password").value.trim();
+      const newPassword = document.getElementById("new-password").value.trim();
+      const confirmPassword = document
+        .getElementById("confirm-password")
+        .value.trim();
 
       const oldPasswordError = document.getElementById("old-password-error");
       const confirmPasswordError = document.getElementById(
         "confirm-password-error"
       );
+      const newPasswordError = document.getElementById("new-password-error");
 
       // Clear previous errors
       oldPasswordError.textContent = "";
       confirmPasswordError.textContent = "";
+      newPasswordError.textContent = "";
 
-      // Validate passwords
+      // Check if old password is incorrect
+      const response = await fetch("/user/verify-old-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldPassword }),
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        oldPasswordError.textContent = result.error; // Show "Old password is incorrect."
+        return;
+      }
+
+      // Regex for password complexity
+      const complexityRegex =
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+      // Validate new password complexity
+      if (!complexityRegex.test(newPassword)) {
+        newPasswordError.textContent =
+          "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.";
+        return;
+      }
+
+      // Validate new password is different from old password
+      if (oldPassword === newPassword) {
+        newPasswordError.textContent =
+          "New password must not be the same as the old password.";
+        return;
+      }
+
+      // Validate passwords match
       if (newPassword !== confirmPassword) {
         confirmPasswordError.textContent = "Passwords do not match.";
         return;
       }
 
-      const response = await fetch("/user/update-password", {
+      // Proceed to update password
+      const updateResponse = await fetch("/user/update-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
 
-      const result = await response.json();
-      if (result.error) {
-        if (result.error === "Old password is incorrect.") {
-          oldPasswordError.textContent = result.error;
-        } else {
-          alert(result.error);
-        }
-      } else if (result.message) {
-        alert(result.message);
+      const updateResult = await updateResponse.json();
+
+      if (updateResult.error) {
+        alert(updateResult.error);
+      } else if (updateResult.message) {
+        alert(updateResult.message);
         location.reload();
       }
     });
+
+  // Toggle visibility for password fields
+  document.querySelectorAll(".toggle-password").forEach((toggleBtn) => {
+    toggleBtn.addEventListener("click", function () {
+      const targetInputId = this.getAttribute("data-target");
+      const targetInput = document.getElementById(targetInputId);
+
+      if (targetInput.type === "password") {
+        targetInput.type = "text";
+        this.querySelector("i").classList.remove("fa-eye");
+        this.querySelector("i").classList.add("fa-eye-slash");
+      } else {
+        targetInput.type = "password";
+        this.querySelector("i").classList.remove("fa-eye-slash");
+        this.querySelector("i").classList.add("fa-eye");
+      }
+    });
+  });
 });

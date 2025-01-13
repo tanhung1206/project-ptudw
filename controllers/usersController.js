@@ -343,12 +343,27 @@ router.post("/reset-password/:token", async (req, res) => {
     const { token } = req.params;
     const { password, confirmPassword } = req.body;
 
+    // Regex kiểm tra độ phức tạp của mật khẩu
+    const complexityRegex =
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
     if (!password || !confirmPassword) {
       return res.render("reset-password", {
         title: "Reset Password",
         message: "Reset Password",
         currentPage: "reset-password",
         errorMessage: "All fields are required.",
+        token,
+      });
+    }
+
+    if (!complexityRegex.test(password)) {
+      return res.render("reset-password", {
+        title: "Reset Password",
+        message: "Reset Password",
+        currentPage: "reset-password",
+        errorMessage:
+          "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.",
         token,
       });
     }
@@ -468,6 +483,35 @@ router.post(
   }
 );
 
+// POST /user/verify-old-password - Verify old password
+router.post(
+  "/verify-old-password",
+  require("../middlewares/restrict"),
+  async (req, res) => {
+    try {
+      const { oldPassword } = req.body;
+
+      if (!oldPassword) {
+        return res.status(400).json({ error: "Old password is required." });
+      }
+
+      const user = (await usersModel.findById(req.user.userid))[0];
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ error: "Old password is incorrect." });
+      }
+
+      res.status(200).json({ message: "Old password is correct." });
+    } catch (error) {
+      console.error("Error verifying old password:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while verifying old password." });
+    }
+  }
+);
+
 // POST /user/update-password - Update user's password
 router.post(
   "/update-password",
@@ -482,17 +526,33 @@ router.post(
           .json({ error: "All password fields are required." });
       }
 
+      const user = (await usersModel.findById(req.user.userid))[0];
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ error: "Old password is incorrect." });
+      }
+
+      if (oldPassword === newPassword) {
+        return res.status(400).json({
+          error: "New password must not be the same as the old password.",
+        });
+      }
+
       if (newPassword !== confirmPassword) {
         return res
           .status(400)
           .json({ error: "New password and confirm password do not match." });
       }
 
-      const user = (await usersModel.findById(req.user.userid))[0];
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      const complexityRegex =
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-      if (!isMatch) {
-        return res.status(400).json({ error: "Old password is incorrect." });
+      if (!complexityRegex.test(newPassword)) {
+        return res.status(400).json({
+          error:
+            "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.",
+        });
       }
 
       const hashedNewPassword = await bcrypt.hash(newPassword, 8);
