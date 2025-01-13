@@ -427,7 +427,7 @@ router.post(
           .json({ error: "Firstname and lastname are required." });
       }
 
-      const nameRegex = /^[A-Z][a-z]*(?:\s+[A-Z][a-z]*)*$/;
+      const nameRegex = /^[A-ZÀ-Ỹ][a-zà-ỹ]*(?:\s+[A-ZÀ-Ỹ][a-zà-ỹ]*)*$/;
 
       if (!nameRegex.test(firstname)) {
         return res.status(400).json({

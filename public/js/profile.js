@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       firstnameError.textContent = "";
       lastnameError.textContent = "";
 
-      const nameRegex = /^[A-Z][a-z]*(?:\s+[A-Z][a-z]*)*$/;
+      const nameRegex = /^[A-ZÀ-Ỹ][a-zà-ỹ]*(?:\s+[A-ZÀ-Ỹ][a-zà-ỹ]*)*$/;
 
       // Validate Firstname
       if (!nameRegex.test(firstname)) {
