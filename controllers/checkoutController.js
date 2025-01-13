@@ -22,7 +22,11 @@ router.post("/", async (req, res) => {
     const total = req.body.total;
 
     const addressid = await addressesModel.addOrUpdate({ fullname, email, phone, address, zip });
+    // Save addressid to req.user
+    // req.user.addressid = addressid;
+
     const orderid = await ordersModel.add({ userid: req.user.userid, addressid, total });
+    console.log(orderid);
 
     cartModel.findByUserId(req.user.userid).then(cart => {
         cart.forEach(item => {
@@ -30,6 +34,8 @@ router.post("/", async (req, res) => {
         });
         cartModel.deleteAll(req.user.userid);
     });
+
+    res.json({ orderid });
 });
 
 module.exports = router;

@@ -265,6 +265,7 @@ const usersRouter = require("./controllers/usersController");
 const productsRouter = require("./controllers/productsController");
 const ordersRouter = require("./controllers/ordersController");
 const authRouter = require("./controllers/usersController");
+const paymentRouter = require("./controllers/paymentController");
 
 app.use("/", indexRouter);
 app.use("/about", aboutRouter);
@@ -275,6 +276,7 @@ app.use("/auth", authRouter);
 app.use("/user", usersRouter);
 app.use("/products", productsRouter);
 app.use("/orders", require("./middlewares/restrict"), ordersRouter);
+app.use("/payment", require("./middlewares/restrict"), paymentRouter);
 
 app.use("/api/products", require("./controllers/apiProducts"));
 

@@ -13,7 +13,7 @@ module.exports = {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "EShooper Activate your account",
+      subject: "EShopper Activate your account",
       html: `
                 <h1>Account Activation</h1>
                 <p>Click the link below to activate your account:</p>

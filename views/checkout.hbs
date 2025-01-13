@@ -148,13 +148,7 @@
                 <div class="card-header bg-secondary border-0">
                     <h4 class="font-weight-semi-bold m-0">Payment</h4>
                 </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <div class="custom-control custom-radio">
-                            <input type="radio" class="custom-control-input" name="payment" id="paypal">
-                            <label class="custom-control-label" for="paypal">Paypal</label>
-                        </div>
-                    </div>
+                <div class="card-body" id="payment">
                     <div class="form-group">
                         <div class="custom-control custom-radio">
                             <input type="radio" class="custom-control-input" name="payment" id="directcheck">
@@ -183,12 +177,11 @@
             return;
         }
         placeOrder();
-        completeOrder();
     });
 
     function completeOrder() {
         // delete all page and replace with a thank you message
-        document.querySelector('.container-fluid.pt-5').innerHTML = '<div class="container text-center"><h1>Thank you for your order!</h1><p>Your order has been placed successfully.</p></div>';
+        document.querySelector('.container-fluid.pt-5').innerHTML = '<div class="container text-center pt-5"> <h1>Thank you for your order!</h1> <p>Your order has been placed successfully.</p> <div class="mt-4"> <a href="/" class="btn btn-primary">Continue Shopping</a> </div> </div>';
     }
 
     function validateForm() {
@@ -225,17 +218,28 @@
             total: document.querySelector('.card-footer .font-weight-bold:last-child').textContent.slice(1)
         };
 
-        console.log(data);
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').id;
 
-        fetch('/checkout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        }).then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error('Error:', error));
+        console.log(paymentMethod);
+
+        if (paymentMethod === 'directcheck') {
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    completeOrder();
+                })
+                .catch(error => console.error('Error:', error));
+        } else {
+            window.location.href = '/payment';
+        }
+
+
     };
 
 </script>
