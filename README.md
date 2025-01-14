@@ -10,7 +10,14 @@
    DB_PASSWORD=your_password
    DB_PORT=5432
    ```
-2. Để cập nhật `SESSION_SECRET`, chạy lệnh:
+2. (Tùy chọn) thêm EMAIL_USER và EMAIL_PASS để chạy các tính năng liên quan đến email
+
+   ```bash
+   EMAIL_USER=your_email
+   EMAIL_PASS=your_app_password
+   ```
+
+3. Để cập nhật `SESSION_SECRET`, chạy lệnh:
 
    ```
    node setupEnv.js
