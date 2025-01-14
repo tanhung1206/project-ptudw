@@ -10,7 +10,7 @@
    DB_PASSWORD=your_password
    DB_PORT=5432
    ```
-2. (Tùy chọn) thêm EMAIL_USER và EMAIL_PASS để chạy các tính năng liên quan đến email
+2. (Tùy chọn) thêm EMAIL_USER và EMAIL_PASS để chạy các tính năng liên quan đến email:
 
    ```bash
    EMAIL_USER=your_email
